@@ -4,7 +4,7 @@ import * as randomString from "randomstring";
 import {test} from "ava";
 
 import {Encryption, EncryptionAdapter, Errors, KeyDerivation, Options} from "dist";
-import {ENCRYPTED_PRESETS_DUMPS, forEachPreset} from "./util";
+import {ENCRYPTED_PRESETS_DUMPS, forEachPreset, resolveSkippedPresets} from "./util";
 
 test("core", async (t) => {
     const options: { keyDerivation: KeyDerivation.KeyDerivationPresets; encryption: Encryption.EncryptionPresets } = {
@@ -90,6 +90,15 @@ test("core", async (t) => {
         const directory = path.join(dumpsOutputDirectory, versionDirectory);
 
         for (const fileName of fs.readdirSync(directory)) {
+            const skippingPresets = resolveSkippedPresets(fileName);
+
+            if (skippingPresets.length) {
+                // tslint:disable:no-console
+                console.log(`skipping "${JSON.stringify(skippingPresets)}" presets processing for file: ${fileName}`);
+                // tslint:enable:no-console
+                continue;
+            }
+
             test(`regression decrypting v${versionDirectory}: ${fileName}`, async (t) => {
                 const encryptedData = fs.readFileSync(path.join(directory, fileName));
                 const decryptedData = await EncryptionAdapter.default(versionDirectory).read(encryptedData);

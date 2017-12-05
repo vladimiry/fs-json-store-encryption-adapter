@@ -17,8 +17,18 @@ export async function forEachPreset(action: (options: Options, iterationIndex: n
                         keyDerivation: {type: keyDerivationType, preset: keyDerivationPreset},
                         encryption: {type: encryptionType, preset: encryptionPreset},
                     };
+                    const stringifyedOptions = JSON.stringify(options);
+                    const skippingPresets = resolveSkippedPresets(stringifyedOptions);
 
                     iterationIndex++;
+
+                    if (skippingPresets.length) {
+                        // tslint:disable:no-console
+                        console.log(`skipping "${JSON.stringify(skippingPresets)}" presets processing: ${stringifyedOptions}`);
+                        // tslint:enable:no-console
+                        return;
+                    }
+
                     await action(options, iterationIndex);
                 });
             });
@@ -26,6 +36,13 @@ export async function forEachPreset(action: (options: Options, iterationIndex: n
     });
 
     return iterationIndex;
+}
+
+export function resolveSkippedPresets(scanValue: string): string[] {
+    return String(process.env.TEST_SKIP_PRESETS)
+        .split(",")
+        .map((envPreset) => envPreset.trim())
+        .filter((envPreset) => String(scanValue).toLowerCase().indexOf(envPreset) !== -1);
 }
 
 export const ENCRYPTED_PRESETS_DUMPS = Object.freeze({
