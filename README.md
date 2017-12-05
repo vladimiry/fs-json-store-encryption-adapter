@@ -6,7 +6,7 @@ is an encryption adapter for the [fs-json-store](https://github.com/vladimiry/fs
 - Predefined presets.
 - Switching between built-in node's `crypto` and `libsodium` (like Argon2 key derivation function) implementations.
 - Keeping all the needed options in the produced buffer in along with the encrypted data itself.
-- Enabling `salting` for all the key derivation and encryption operations, which makes it much harder to crack a hash using lookup and rainbow tables.
+- Injecting randomly generated `salt` is enabled for every key derivation and encryption execution, which helps against the lookup tables and rainbow tables hash cracking attacks. It's more helpful in a multi user environment though.
 
 ## Implementation Notes
 - Modules executes a native [libsodium](https://github.com/jedisct1/libsodium) code with help of the [sodium-native](https://github.com/sodium-friends/sodium-native) bindings library. It's supposed to work faster than the WebAssembly versions.
@@ -36,7 +36,7 @@ export interface Adapter {
 - **`type`**: `crypto`
   - **`preset`**: `algorithm:aes-256-cbc`
 
-You should not rely on the `types / presets` options, but only on their names. Presets values can be changed in the code in any time (for example, increasing key derivation work factor), but that won't break the decryption of the previously encrypted data since adapter stores all the encryption options in the same buffer and so decryption can be reproduced even if values of the presets have been changed in the code.
+You should not rely on the `types / presets` respective inner values, but only on the `types / presets` names listed above. Presets values can be changed in the code in any time (for example, increasing key derivation work factor), but that won't break the decryption of the previously encrypted data since adapter stores all the encryption options in the same buffer and so decryption can be reproduced even if values of the presets have been changed in the code with new module release.
 
 ## Usage Examples
 
