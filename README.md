@@ -4,7 +4,7 @@ is an encryption adapter for the [fs-json-store](https://github.com/vladimiry/fs
 
 ## Features
 - Predefined presets.
-- Switching between built-in node's `crypt` and `libsodium` (like Argon2 key derivation function) implementations.
+- Switching between built-in node's `crypto` and `libsodium` (like Argon2 key derivation function) implementations.
 - Keeping all the needed options in the produced buffer in along with the encrypted data itself.
 - Enabling `salting` for all the key derivation and encryption operations, which makes it much harder to crack a hash using lookup and rainbow tables.
 
