@@ -2,6 +2,8 @@
 
 is an encryption adapter for the [fs-json-store](https://github.com/vladimiry/fs-json-store) module.
 
+[![Build Status: Linux / MacOS](https://travis-ci.org/vladimiry/fs-json-store-encryption-adapter.svg?branch=master)](https://travis-ci.org/vladimiry/fs-json-store-encryption-adapter) [![Build status: Windows](https://ci.appveyor.com/api/projects/status/8ia8inx76ctamhmb?svg=true)](https://ci.appveyor.com/project/vladimiry/fs-json-store-encryption-adapter)
+
 ## Features
 - Predefined presets.
 - Switching between built-in node's `crypto` and `libsodium` (like Argon2 key derivation function) implementations.
