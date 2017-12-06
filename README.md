@@ -8,10 +8,10 @@ is an encryption adapter for the [fs-json-store](https://github.com/vladimiry/fs
 - Predefined presets.
 - Switching between built-in node's `crypto` and `libsodium` (like Argon2 key derivation function) implementations.
 - Keeping all the needed options in the produced buffer in along with the encrypted data itself.
-- Injecting randomly generated `salt` is enabled for every key derivation and encryption execution, which helps against the lookup tables and rainbow tables hash cracking attacks. It's more helpful in a multi user environment though.
+- Random `salting` is enabled for every key derivation and encryption execution, which helps against the lookup tables and rainbow tables hash cracking attacks. It's more helpful in a multi user environment though.
 
 ## Implementation Notes
-- Modules executes a native [libsodium](https://github.com/jedisct1/libsodium) code with help of the [sodium-native](https://github.com/sodium-friends/sodium-native) bindings library. It's supposed to work faster than the WebAssembly versions.
+- Module executes a native [libsodium](https://github.com/jedisct1/libsodium) code with help of the [sodium-native](https://github.com/sodium-friends/sodium-native) bindings library. It's supposed to work faster than the WebAssembly versions.
 - Module can be used as a general purpose `Buffer` encryption library, adapter simply implements the following interface:
 ```typescript
 export interface Adapter {
