@@ -1,4 +1,4 @@
-import * as combineErrors from "combine-errors";
+import combineErrors from "combine-errors";
 
 import {FailedDecryptionError} from "../errors";
 import {assert} from "../private/util";

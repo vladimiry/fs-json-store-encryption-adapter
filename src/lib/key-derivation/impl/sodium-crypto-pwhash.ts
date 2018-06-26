@@ -1,4 +1,4 @@
-import * as sodium from "sodium-native";
+import sodium from "sodium-native";
 
 import {BASE64_ENCODING} from "../../private/constants";
 import {promisify} from "../../private/util.promisify";

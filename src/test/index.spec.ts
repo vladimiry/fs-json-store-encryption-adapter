@@ -1,6 +1,6 @@
-import * as fs from "fs";
-import * as path from "path";
-import * as randomString from "randomstring";
+import fs from "fs";
+import path from "path";
+import randomString from "randomstring";
 import {test} from "ava";
 
 import {Encryption, EncryptionAdapter, Errors, KeyDerivation, Options} from "dist";

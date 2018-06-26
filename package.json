@@ -20,16 +20,16 @@
   ],
   "main": "./index.js",
   "scripts": {
-    "dist:compile": "tsc --listEmittedFiles",
-    "dist:compile:watch": "tsc -w",
+    "dist:compile": "tsc -p ./src/lib/tsconfig.json --listEmittedFiles",
+    "dist:compile:watch": "tsc -p ./src/lib/tsconfig.json -w",
     "dist:clean": "rimraf ./dist",
     "dist:copy": "cpx \"{package.json,README.md,LICENSE}\" ./dist",
     "dist": "npm-run-all dist:clean lint dist:compile dist:copy test",
     "lint:src": "tslint -c ./tslint.json \"./src/{lib,@types}/**/*.ts\"",
-    "lint:test": "tslint -c ./tslint-test.json \"./src/test/**/*.ts\"",
+    "lint:test": "tslint -c ./src/test/tslint.json \"./src/test/**/*.ts\"",
     "lint": "npm-run-all lint:src lint:test",
-    "test": "node node_modules/cross-env/dist/bin/cross-env.js TS_NODE_PROJECT=./tsconfig-test.json node_modules/ava-ts/cli.js --verbose \"./src/test/**/*.spec.ts\"",
-    "test:generate_encrypted_presets_dumps": "cross-env TS_NODE_PROJECT=./tsconfig-test.json GENERATE_ENCRYPTED_PRESETS_DUMPS=true ts-node -r tsconfig-paths/register ./src/test/util.ts"
+    "test": "cross-env TS_NODE_PROJECT=./src/test/tsconfig.json ava-ts --verbose \"./src/test/**/*.spec.ts\"",
+    "test:generate_encrypted_presets_dumps": "cross-env TS_NODE_PROJECT=./src/test/tsconfig.json GENERATE_ENCRYPTED_PRESETS_DUMPS=true ts-node -r tsconfig-paths/register ./src/test/util.ts"
   },
   "pre-commit": [
     "lint"

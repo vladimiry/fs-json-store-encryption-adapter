@@ -1,4 +1,4 @@
-import * as sodium from "sodium-native";
+import sodium from "sodium-native";
 
 export function randomBytes(saltBytes: number) {
     const salt = Buffer.allocUnsafe(saltBytes);

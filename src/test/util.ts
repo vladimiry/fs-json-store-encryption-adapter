@@ -1,6 +1,6 @@
-import * as fs from "fs";
-import * as path from "path";
-import * as mkdirp from "mkdirp";
+import fs from "fs";
+import path from "path";
+import mkdirp from "mkdirp";
 
 import {Encryption, EncryptionAdapter, Errors, KeyDerivation, Options} from "dist";
 
