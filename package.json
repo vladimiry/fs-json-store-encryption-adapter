@@ -25,8 +25,8 @@
     "dist:clean": "rimraf ./dist",
     "dist:copy": "cpx \"{package.json,README.md,LICENSE}\" ./dist",
     "dist": "npm-run-all dist:clean lint dist:compile dist:copy test",
-    "lint:src": "tslint -c ./tslint.json \"./src/{lib,@types}/**/*.ts\"",
-    "lint:test": "tslint -c ./src/test/tslint.json \"./src/test/**/*.ts\"",
+    "lint:src": "tslint -p ./src/lib/tsconfig.json -c ./tslint.json \"./src/{lib,@types}/**/*.ts\"",
+    "lint:test": "tslint -p ./src/test/tsconfig.json -c ./src/test/tslint.json \"./src/test/**/*.ts\"",
     "lint": "npm-run-all lint:src lint:test",
     "test": "cross-env TS_NODE_PROJECT=./src/test/tsconfig.json ava --verbose \"./src/test/**/*.spec.ts\"",
     "test:generate_encrypted_presets_dumps": "cross-env TS_NODE_PROJECT=./src/test/tsconfig.json GENERATE_ENCRYPTED_PRESETS_DUMPS=true ts-node -r tsconfig-paths/register ./src/test/util.ts"

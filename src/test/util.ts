@@ -2,14 +2,14 @@ import fs from "fs";
 import path from "path";
 import mkdirp from "mkdirp";
 
-import {Encryption, EncryptionAdapter, Errors, KeyDerivation, Options} from "dist";
+import {Encryption, EncryptionAdapter, KeyDerivation, Options} from "dist";
 
 export async function forEachPreset(action: (options: Options, iterationIndex: number) => Promise<void>) {
     const keyDerivationBundles = KeyDerivation.bundles as any;
     const encryptionBundles = Encryption.bundles as any;
     let iterationIndex = 0;
 
-    await Object.keys(keyDerivationBundles).forEach((keyDerivationType) => {
+    Object.keys(keyDerivationBundles).forEach((keyDerivationType) => {
         Object.keys(keyDerivationBundles[keyDerivationType].optionsPresets).forEach((keyDerivationPreset) => {
             Object.keys(encryptionBundles).forEach((encryptionType) => {
                 Object.keys(encryptionBundles[encryptionType].optionsPresets).forEach(async (encryptionPreset) => {
