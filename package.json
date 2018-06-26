@@ -28,26 +28,33 @@
     "lint:src": "tslint -c ./tslint.json \"./src/{lib,@types}/**/*.ts\"",
     "lint:test": "tslint -c ./src/test/tslint.json \"./src/test/**/*.ts\"",
     "lint": "npm-run-all lint:src lint:test",
-    "test": "cross-env TS_NODE_PROJECT=./src/test/tsconfig.json ava-ts --verbose \"./src/test/**/*.spec.ts\"",
+    "test": "cross-env TS_NODE_PROJECT=./src/test/tsconfig.json ava --verbose \"./src/test/**/*.spec.ts\"",
     "test:generate_encrypted_presets_dumps": "cross-env TS_NODE_PROJECT=./src/test/tsconfig.json GENERATE_ENCRYPTED_PRESETS_DUMPS=true ts-node -r tsconfig-paths/register ./src/test/util.ts"
   },
   "pre-commit": [
     "lint"
   ],
   "ava": {
-    "TODO ava 1": "get rid of ava-ts, run tests using ts-node as soon as ava gets *.ts file pattern allowed",
-    "TODO ava 2": "ts-node/register is added as ava-ts doesn't work well with just tsconfig-paths/register added without explicit ts-node/register attaching",
+    "compileEnhancements": false,
+    "extensions": [
+      "ts"
+    ],
     "require": [
       "ts-node/register",
       "tsconfig-paths/register"
     ]
   },
+  "dependencies": {
+    "combine-errors": "^3.0.3",
+    "sodium-native": "^2.1.6",
+    "tslib": "^1.9.3",
+    "util.promisify": "^1.0.0"
+  },
   "devDependencies": {
     "@types/mkdirp": "^0.5.2",
     "@types/node": "^10.3.6",
     "@types/randomstring": "^1.1.6",
-    "ava": "^0.25.0",
-    "ava-ts": "^0.24.6",
+    "ava": "^1.0.0-beta.6",
     "cpx": "^1.5.0",
     "cross-env": "^5.2.0",
     "mkdirp": "^0.5.1",
@@ -60,11 +67,5 @@
     "tslint": "^5.10.0",
     "tslint-rules-bunch": "^0.0.4",
     "typescript": "^2.9.2"
-  },
-  "dependencies": {
-    "combine-errors": "^3.0.3",
-    "sodium-native": "^2.1.6",
-    "tslib": "^1.9.3",
-    "util.promisify": "^1.0.0"
   }
 }
