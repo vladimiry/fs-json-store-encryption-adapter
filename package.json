@@ -1,6 +1,6 @@
 {
   "name": "fs-json-store-encryption-adapter",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Encryption adapter for the \"fs-json-store\" module",
   "author": "Vladimir Yakovlev <dev.vladimir.y@gmail.com> (https://github.com/vladimiry)",
   "license": "MIT",
