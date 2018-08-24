@@ -1,9 +1,9 @@
 import fs from "fs";
 import path from "path";
 import randomString from "randomstring";
-import {test} from "ava";
+import test from "ava";
 
-import {Encryption, EncryptionAdapter, Errors, KeyDerivation, Options} from "dist";
+import {Encryption, EncryptionAdapter, Errors, KeyDerivation, Options} from "../../dist";
 import {ENCRYPTED_PRESETS_DUMPS, forEachPreset, resolveSkippedPresets} from "./util";
 
 test("core", async (t) => {
@@ -48,14 +48,15 @@ test("core", async (t) => {
     t.deepEqual(await instance3DiffOpts.read(encryptedData2), data);
 
     // instance with same options, but different password: should fail
-    await t.throws(new EncryptionAdapter(randomString.generate(), options).read(encryptedData));
-    await t.throws(new EncryptionAdapter(randomString.generate(), options).read(encryptedDataIteration2));
-    const err = await t.throws(new EncryptionAdapter(randomString.generate(), options).read(encryptedData2));
+    await t.throwsAsync(new EncryptionAdapter(randomString.generate(), options).read(encryptedData));
+    await t.throwsAsync(new EncryptionAdapter(randomString.generate(), options).read(encryptedDataIteration2));
+    const err = await t.throwsAsync(new EncryptionAdapter(randomString.generate(), options).read(encryptedData2));
     // t.is(err.errors[0].constructor.name, Errors.FailedDecryptionError.name);
     t.true(err.errors[0] instanceof Errors.FailedDecryptionError);
 });
 
 // run with all presets combinations
+// tslint:disable-next-line:no-floating-promises
 (async () => {
     await forEachPreset(async (options: Options) => {
         test.serial(`presets write/read: ${JSON.stringify(options)}"`, async (t) => {
@@ -74,6 +75,7 @@ test("core", async (t) => {
 })();
 
 // regression decrypting
+// tslint:disable-next-line:no-floating-promises
 (async () => {
     const {dumpsOutputDirectory, dataBuffer} = ENCRYPTED_PRESETS_DUMPS;
 

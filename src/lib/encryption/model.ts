@@ -1,33 +1,18 @@
-import {EncryptionOptions, EncryptionPresets} from ".";
+import {EncryptionOptions} from ".";
+import {Omit} from "../private/constants";
 
-export interface Bundle<O = Options, D = Data> {
-    optionsPresets: Record<string, O>;
+export interface EncryptionModuleImpl<T extends EncryptionOptions["type"] = EncryptionOptions["type"]> {
+    optionsPresets: Record<string, Extract<EncryptionOptions, { type: T }>["options"]>;
 
-    encrypt(key: Buffer, inputData: Buffer, rule: Rule<O, D>): Promise<{ cipher: Buffer, rule: FilledRule<O, D> }>;
+    encrypt(
+        key: Buffer,
+        inputData: Buffer,
+        rule: Omit<Extract<EncryptionOptions, { type: T }>, "data">,
+    ): Promise<{ cipher: Buffer, rule: EncryptionOptions }>;
 
-    decrypt(key: Buffer, inputData: Buffer, rule: FilledRule<O, D>): Promise<Buffer>;
+    decrypt(
+        key: Buffer,
+        inputData: Buffer,
+        rule: Extract<EncryptionOptions, { type: T }>,
+    ): Promise<Buffer>;
 }
-
-export interface Implementation<O = Options, D = Data> {
-    encrypt(opts: EncryptionPresets, key: Buffer, inputData: Buffer): Promise<{ cipher: Buffer, rule: FilledRule<O, D> }>;
-
-    decrypt(opts: EncryptionOptions, key: Buffer, inputData: Buffer): Promise<Buffer>;
-}
-
-export interface Rule<O, D> {
-    type: string;
-    options: O;
-    data?: D;
-}
-
-export interface FilledRule<O, D> extends Rule<O, D> {
-    data: D;
-}
-
-// tslint:disable:no-empty-interface
-
-export interface Options {}
-
-export interface Data {}
-
-// tslint:enable:no-empty-interface

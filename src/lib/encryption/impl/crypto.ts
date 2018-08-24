@@ -1,10 +1,10 @@
 import {createCipheriv, createDecipheriv} from "crypto";
 
 import {BASE64_ENCODING, SALT_BYTES_16} from "../../private/constants";
-import * as Model from "../model";
+import {EncryptionModuleImpl} from "../model";
 import {randomBytes} from "../../private/util";
 
-export async function encrypt(key: Buffer, inputData: Buffer, rule: Model.Rule<Options, Data>) {
+export const encrypt: EncryptionModuleImpl<"crypto">["encrypt"] = async (key, inputData, rule) => {
     const {ivBytes, algorithm} = rule.options;
     const data = {ivBase64: randomBytes(ivBytes).toString(BASE64_ENCODING)};
     const iv = Buffer.from(data.ivBase64, BASE64_ENCODING);
@@ -12,15 +12,15 @@ export async function encrypt(key: Buffer, inputData: Buffer, rule: Model.Rule<O
     const cipher = Buffer.concat([cipherIv.update(inputData), cipherIv.final()]);
 
     return {cipher, rule: {...rule, data}};
-}
+};
 
-export async function decrypt(key: Buffer, inputData: Buffer, rule: Model.FilledRule<Options, Data>) {
+export const decrypt: EncryptionModuleImpl<"crypto">["decrypt"] = async (key, inputData, rule) => {
     const {algorithm} = rule.options;
     const iv = Buffer.from(rule.data.ivBase64, BASE64_ENCODING);
     const decipherIv = createDecipheriv(algorithm, key, iv);
 
     return Buffer.concat([decipherIv.update(inputData), decipherIv.final()]);
-}
+};
 
 export const optionsPresets = {
     "algorithm:aes-256-cbc": {
@@ -29,11 +29,11 @@ export const optionsPresets = {
     },
 };
 
-export interface Options extends Model.Options {
+export interface Options {
     ivBytes: number;
     algorithm: string;
 }
 
-export interface Data extends Model.Data {
+export interface Data {
     ivBase64: string;
 }

@@ -1,11 +1,11 @@
 import sodium from "sodium-native";
+import {promisify} from "util";
 
 import {BASE64_ENCODING} from "../../private/constants";
-import {promisify} from "../../private/util.promisify";
+import {KeyDerivationModuleImpl} from "../model";
 import {randomBytes} from "../../private/util";
-import * as Model from "../model";
 
-export async function deriveKey(password: string, rule: Model.Rule<Options, Data>) {
+export const deriveKey: KeyDerivationModuleImpl<"sodium.crypto_pwhash">["deriveKey"] = async (password, rule) => {
     const {keyBytes, opsLimit, memLimit, algorithm, saltBytes} = rule.options;
     const data = rule.data || {saltBase64: randomBytes(saltBytes).toString(BASE64_ENCODING)};
     const salt = Buffer.from(data.saltBase64, BASE64_ENCODING);
@@ -21,7 +21,7 @@ export async function deriveKey(password: string, rule: Model.Rule<Options, Data
     );
 
     return {key, rule: {...rule, data}};
-}
+};
 
 const defaultAlgorithmOptions = {
     keyBytes: sodium.crypto_secretbox_KEYBYTES,
@@ -47,7 +47,7 @@ export const optionsPresets = {
     },
 };
 
-export interface Options extends Model.Options {
+export interface Options {
     keyBytes: number;
     saltBytes: number;
     opsLimit: number;
@@ -55,6 +55,6 @@ export interface Options extends Model.Options {
     algorithm: number;
 }
 
-export interface Data extends Model.Data {
+export interface Data {
     saltBase64: string;
 }

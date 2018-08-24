@@ -1,13 +1,15 @@
-import {KeyDerivationPresets, resolveKeyDerivation} from "./key-derivation";
-import {EncryptionPresets, resolveEncryption} from "./encryption";
+import {EncryptionOptions, EncryptionPresets, resolveEncryption} from "./encryption";
+import {KeyDerivationOptions, KeyDerivationPresets, resolveKeyDerivation} from "./key-derivation";
 
 const HEADER_END_MARK_BUFFER = Buffer.from([0o0]);
 
 export class EncryptionAdapter {
-    public static default = (password: string) => new EncryptionAdapter(password, {
-        keyDerivation: {type: "sodium.crypto_pwhash", preset: "mode:interactive|algorithm:default"},
-        encryption: {type: "sodium.crypto_secretbox_easy", preset: "algorithm:default"},
-    })
+    public static default(password: string) {
+        return new EncryptionAdapter(password, {
+            keyDerivation: {type: "sodium.crypto_pwhash", preset: "mode:interactive|algorithm:default"},
+            encryption: {type: "sodium.crypto_secretbox_easy", preset: "algorithm:default"},
+        });
+    }
 
     constructor(private readonly password: string, private readonly opts: Options) {}
 
@@ -40,6 +42,6 @@ export interface Options {
 }
 
 interface FileHeader {
-    keyDerivation: { type: any; options: any; data: any; };
-    encryption: { type: any; options: any; data: any; };
+    keyDerivation: KeyDerivationOptions;
+    encryption: EncryptionOptions;
 }

@@ -2,11 +2,11 @@ import fs from "fs";
 import path from "path";
 import mkdirp from "mkdirp";
 
-import {Encryption, EncryptionAdapter, KeyDerivation, Options} from "dist";
+import {Encryption, EncryptionAdapter, KeyDerivation, Options} from "../../dist";
 
 export async function forEachPreset(action: (options: Options, iterationIndex: number) => Promise<void>) {
-    const keyDerivationBundles = KeyDerivation.bundles as any;
-    const encryptionBundles = Encryption.bundles as any;
+    const keyDerivationBundles = KeyDerivation.implementations as any;
+    const encryptionBundles = Encryption.implementations as any;
     let iterationIndex = 0;
 
     Object.keys(keyDerivationBundles).forEach((keyDerivationType) => {
@@ -51,6 +51,7 @@ export const ENCRYPTED_PRESETS_DUMPS = Object.freeze({
 });
 
 if (process.env.GENERATE_ENCRYPTED_PRESETS_DUMPS) {
+    // tslint:disable-next-line:no-floating-promises
     (async () => {
         const {dumpsOutputDirectory, dataBuffer} = ENCRYPTED_PRESETS_DUMPS;
         const packageJSON = require(path.join(process.cwd(), "package.json"));

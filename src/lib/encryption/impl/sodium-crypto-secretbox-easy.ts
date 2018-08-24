@@ -1,10 +1,10 @@
 import sodium from "sodium-native";
 
 import {BASE64_ENCODING} from "../../private/constants";
+import {EncryptionModuleImpl} from "../model";
 import {randomBytes} from "../../private/util";
-import * as Model from "../model";
 
-export async function encrypt(key: Buffer, inputData: Buffer, rule: Model.Rule<Options, Data>) {
+export const encrypt: EncryptionModuleImpl<"sodium.crypto_secretbox_easy">["encrypt"] = async (key, inputData, rule) => {
     const {nonceBytes} = rule.options;
     const data = {nonceBase64: randomBytes(nonceBytes).toString(BASE64_ENCODING)};
     const nonce = Buffer.from(data.nonceBase64, BASE64_ENCODING);
@@ -13,9 +13,9 @@ export async function encrypt(key: Buffer, inputData: Buffer, rule: Model.Rule<O
     sodium.crypto_secretbox_easy(cipher, inputData, nonce, key);
 
     return {cipher, rule: {...rule, data}};
-}
+};
 
-export async function decrypt(key: Buffer, inputData: Buffer, rule: Model.FilledRule<Options, Data>) {
+export const decrypt: EncryptionModuleImpl<"sodium.crypto_secretbox_easy">["decrypt"] = async (key, inputData, rule) => {
     const nonce = Buffer.from(rule.data.nonceBase64, BASE64_ENCODING);
     const decipher = Buffer.allocUnsafe(inputData.byteLength - sodium.crypto_secretbox_MACBYTES);
 
@@ -24,7 +24,7 @@ export async function decrypt(key: Buffer, inputData: Buffer, rule: Model.Filled
     }
 
     return decipher;
-}
+};
 
 export const optionsPresets = {
     "algorithm:default": {
@@ -32,10 +32,10 @@ export const optionsPresets = {
     },
 };
 
-export interface Options extends Model.Options {
+export interface Options {
     nonceBytes: number;
 }
 
-export interface Data extends Model.Data {
+export interface Data {
     nonceBase64: string;
 }

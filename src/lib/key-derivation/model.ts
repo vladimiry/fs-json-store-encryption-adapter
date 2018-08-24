@@ -1,29 +1,11 @@
-export interface Bundle<O = Options, D = Data> {
-    optionsPresets: Record<string, O>;
+import {KeyDerivationOptions} from ".";
+import {PartialByKeys} from "../private/constants";
 
-    deriveKey(password: string, rule: Rule<O, D>): Result<O, D>;
+export interface KeyDerivationModuleImpl<T extends KeyDerivationOptions["type"] = KeyDerivationOptions["type"]> {
+    optionsPresets: Record<string, Extract<KeyDerivationOptions, { type: T }>["options"]>;
+
+    deriveKey(
+        password: string,
+        rule: PartialByKeys<Extract<KeyDerivationOptions, { type: T }>, "data">,
+    ): Promise<{ key: Buffer, rule: KeyDerivationOptions }>;
 }
-
-export interface Implementation<O = Options, D = Data> {
-    deriveKey(password: string): Result<O, D>;
-}
-
-export type Result<O, D> = Promise<{ key: Buffer, rule: FilledRule<O, D> }>;
-
-export interface Rule<O, D> {
-    type: string;
-    options: O;
-    data?: D;
-}
-
-export interface FilledRule<O, D> extends Rule<O, D> {
-    data: D;
-}
-
-// tslint:disable:no-empty-interface
-
-export interface Options {}
-
-export interface Data {}
-
-// tslint:enable:no-empty-interface

@@ -1,39 +1,39 @@
-import {assert, hasKey} from "../private/util";
 import * as Model from "./model";
-import * as pbkdfBundle from "./impl/pbkdf2";
-import * as sodiumCryptoPwhashBundle from "./impl/sodium-crypto-pwhash";
+import * as pbkdfImpl from "./impl/pbkdf2";
+import * as sodiumCryptoPwhashImpl from "./impl/sodium-crypto-pwhash";
+import {assert} from "../private/util";
 
 export type Type = "pbkdf2" | "sodium.crypto_pwhash";
 
 export type KeyDerivationPresets =
-    | { type: "pbkdf2"; preset: keyof typeof pbkdfBundle.optionsPresets; }
-    | { type: "sodium.crypto_pwhash"; preset: keyof typeof sodiumCryptoPwhashBundle.optionsPresets; };
+    | { type: "pbkdf2"; preset: keyof typeof pbkdfImpl.optionsPresets; }
+    | { type: "sodium.crypto_pwhash"; preset: keyof typeof sodiumCryptoPwhashImpl.optionsPresets; };
 
 export type KeyDerivationOptions =
-    | { type: "pbkdf2", options: pbkdfBundle.Options, data: pbkdfBundle.Data }
-    | { type: "sodium.crypto_pwhash", options: sodiumCryptoPwhashBundle.Options, data: sodiumCryptoPwhashBundle.Data };
+    | { type: "pbkdf2", options: pbkdfImpl.Options, data: pbkdfImpl.Data }
+    | { type: "sodium.crypto_pwhash", options: sodiumCryptoPwhashImpl.Options, data: sodiumCryptoPwhashImpl.Data };
 
-export const bundles: Record<Type, Model.Bundle> = {
-    "pbkdf2": pbkdfBundle,
-    "sodium.crypto_pwhash": sodiumCryptoPwhashBundle,
+export const implementations: Record<Type, Model.KeyDerivationModuleImpl> = {
+    "pbkdf2": pbkdfImpl,
+    "sodium.crypto_pwhash": sodiumCryptoPwhashImpl,
 };
 
 export const resolveKeyDerivation = (opts: KeyDerivationPresets | KeyDerivationOptions) => {
-    const bundle = bundles[opts.type];
+    const implementation: Model.KeyDerivationModuleImpl<typeof opts.type> = implementations[opts.type];
 
-    assert(bundle, `Unsupported key derivation implementation "${JSON.stringify(opts)}"`);
+    assert(implementation, `Unsupported key derivation implementation "${JSON.stringify(opts)}"`);
 
     return {
         async deriveKey(password: string) {
-            if (hasKey(opts, "preset")) {
-                const options = bundle.optionsPresets[opts.preset];
+            if ("preset" in opts) {
+                const options = implementation.optionsPresets[opts.preset];
 
                 assert(options, `Failed to resolve key derivation options (${JSON.stringify(opts)})`);
 
-                return await bundle.deriveKey(password, {type: opts.type, options});
+                return await implementation.deriveKey(password, {type: opts.type, options});
             } else {
-                return await bundle.deriveKey(password, opts);
+                return await implementation.deriveKey(password, opts);
             }
         },
-    } as Model.Implementation;
+    };
 };
