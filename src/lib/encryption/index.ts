@@ -21,19 +21,20 @@ export const implementations: Record<Type, Model.EncryptionModuleImpl> = {
     "sodium.crypto_secretbox_easy": sodiumCryptoSecretboxEasyImpl,
 };
 
-export const resolveEncryption = (opts: EncryptionPresets | EncryptionOptions) => {
-    const implementation = implementations[opts.type];
+export const resolveEncryption = (resolveInput: EncryptionPresets | EncryptionOptions) => {
+    const implementation = implementations[resolveInput.type];
 
-    assert(implementation, `Unsupported encryption implementation "${JSON.stringify(opts)}"`);
+    assert(implementation, `Unsupported encryption implementation "${JSON.stringify(resolveInput)}"`);
 
     return {
-        async encrypt({type, preset}: EncryptionPresets, key: Buffer, inputData: Buffer) {
+        async encrypt(key: Buffer, data: Buffer) {
+            const {type, preset} = resolveInput as EncryptionPresets;
             const options = implementation.optionsPresets[preset];
 
             assert(options, `Failed to resolve encryption options (${JSON.stringify({type, preset})})`);
 
             try {
-                return await implementation.encrypt(key, inputData, {type, options});
+                return await implementation.encrypt(key, data, {type, options});
             } catch (error) {
                 throw combineErrors([
                     new FailedDecryptionError(`Encryption failed (${JSON.stringify({type, preset})})`),
@@ -41,9 +42,11 @@ export const resolveEncryption = (opts: EncryptionPresets | EncryptionOptions) =
                 ]);
             }
         },
-        async decrypt(rule: EncryptionOptions, key: Buffer, inputData: Buffer) {
+        async decrypt(key: Buffer, data: Buffer) {
+            const rule = resolveInput as EncryptionOptions;
+
             try {
-                return await implementation.decrypt(key, inputData, rule);
+                return await implementation.decrypt(key, data, rule);
             } catch (error) {
                 throw combineErrors([
                     new FailedDecryptionError(`Decryption failed (${JSON.stringify(rule)})`),

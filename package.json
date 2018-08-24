@@ -32,7 +32,7 @@
     "lint:test": "tslint -p ./src/test/tsconfig.json -c ./src/test/tslint.json \"./src/test/**/*.ts\"",
     "lint": "npm-run-all lint:src lint:test",
     "test": "cross-env TS_NODE_PROJECT=./src/test/tsconfig.json ava --verbose \"./src/test/**/*.spec.ts\"",
-    "test:generate_encrypted_presets_dumps": "cross-env TS_NODE_PROJECT=./src/test/tsconfig.json GENERATE_ENCRYPTED_PRESETS_DUMPS=true ts-node -r tsconfig-paths/register ./src/test/util.ts"
+    "test:generate_encrypted_presets_dumps": "cross-env TS_NODE_PROJECT=./src/test/tsconfig.json GENERATE_ENCRYPTED_PRESETS_DUMPS=true ts-node ./src/test/util.ts"
   },
   "ava": {
     "compileEnhancements": false,

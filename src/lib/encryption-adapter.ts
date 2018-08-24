@@ -4,29 +4,61 @@ import {KeyDerivationOptions, KeyDerivationPresets, resolveKeyDerivation} from "
 const HEADER_END_MARK_BUFFER = Buffer.from([0o0]);
 
 export class EncryptionAdapter {
-    public static default(password: string) {
-        return new EncryptionAdapter(password, {
+    public static default(input: { password: string } | { key: Buffer }) {
+        const options: PasswordBasedOptions = {
             keyDerivation: {type: "sodium.crypto_pwhash", preset: "mode:interactive|algorithm:default"},
             encryption: {type: "sodium.crypto_secretbox_easy", preset: "algorithm:default"},
-        });
+        };
+        return new EncryptionAdapter("password" in input
+            ? {password: input.password, options}
+            : {key: input.key, options: {encryption: options.encryption}},
+        );
     }
 
-    constructor(private readonly password: string, private readonly opts: Options) {}
+    private readonly encryptionPreset: EncryptionPresets;
+
+    private readonly resolveDecryptionKey: ((header: PasswordBasedFileHeader | KeyBasedFileHeader) => Promise<{ key: Buffer }>);
+
+    private readonly resolveEncryptionKeyData: () => Promise<{ key: Buffer; keyDerivation?: KeyDerivationOptions }>;
+
+    constructor(
+        input: { password: string, options: PasswordBasedOptions } | { key: Buffer, options: KeyBasedOptions },
+    ) {
+        this.encryptionPreset = input.options.encryption;
+
+        if ("password" in input) {
+            this.resolveDecryptionKey = async (header) => {
+                if (!("keyDerivation" in header)) {
+                    throw new Error(`File header doesn't contain the "keyDerivation" section`);
+                }
+                const {key} = await resolveKeyDerivation(header.keyDerivation).deriveKey(input.password);
+                return {key};
+            };
+            this.resolveEncryptionKeyData = async () => {
+                const {key, rule: keyDerivation} = await resolveKeyDerivation(input.options.keyDerivation).deriveKey(input.password);
+                return {key, keyDerivation};
+            };
+        } else {
+            this.resolveDecryptionKey = async () => ({key: input.key});
+            this.resolveEncryptionKeyData = async () => ({key: input.key});
+        }
+    }
 
     public async read(data: Buffer) {
         const headerBytesSize = data.indexOf(HEADER_END_MARK_BUFFER);
         const headerBuffer = data.slice(0, headerBytesSize);
         const cipherBuffer = data.slice(headerBytesSize + 1);
-        const {keyDerivation, encryption}: FileHeader = JSON.parse(headerBuffer.toString());
-        const {key} = await resolveKeyDerivation(keyDerivation).deriveKey(this.password);
+        const header: PasswordBasedFileHeader | KeyBasedFileHeader = JSON.parse(headerBuffer.toString());
+        const {key} = await this.resolveDecryptionKey(header);
+        const {encryption} = header;
 
-        return await resolveEncryption(encryption).decrypt(encryption, key, cipherBuffer);
+        return await resolveEncryption(encryption).decrypt(key, cipherBuffer);
     }
 
     public async write(data: Buffer) {
-        const {key, rule: keyDerivation} = await resolveKeyDerivation(this.opts.keyDerivation).deriveKey(this.password);
-        const {cipher, rule: encryption} = await resolveEncryption(this.opts.encryption).encrypt(this.opts.encryption, key, data);
-        const header: FileHeader = {keyDerivation, encryption};
+        const keyData = await this.resolveEncryptionKeyData();
+        const {cipher, rule: encryption} = await resolveEncryption(this.encryptionPreset).encrypt(keyData.key, data);
+        const header: PasswordBasedFileHeader | KeyBasedFileHeader = {keyDerivation: keyData.keyDerivation, encryption};
 
         return Buffer.concat([
             Buffer.from(JSON.stringify(header)),
@@ -36,12 +68,16 @@ export class EncryptionAdapter {
     }
 }
 
-export interface Options {
+export interface PasswordBasedOptions {
     keyDerivation: KeyDerivationPresets;
     encryption: EncryptionPresets;
 }
 
-interface FileHeader {
+export type KeyBasedOptions = Pick<PasswordBasedOptions, "encryption">;
+
+export interface PasswordBasedFileHeader {
     keyDerivation: KeyDerivationOptions;
     encryption: EncryptionOptions;
 }
+
+export type KeyBasedFileHeader = Pick<PasswordBasedFileHeader, "encryption">;

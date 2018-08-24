@@ -1,9 +1,9 @@
 import sodium from "sodium-native";
 import {promisify} from "util";
+import {randomBytes} from "crypto";
 
 import {BASE64_ENCODING} from "../../private/constants";
 import {KeyDerivationModuleImpl} from "../model";
-import {randomBytes} from "../../private/util";
 
 export const deriveKey: KeyDerivationModuleImpl<"sodium.crypto_pwhash">["deriveKey"] = async (password, rule) => {
     const {keyBytes, opsLimit, memLimit, algorithm, saltBytes} = rule.options;

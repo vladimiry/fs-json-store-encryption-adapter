@@ -1,9 +1,8 @@
-import {pbkdf2} from "crypto";
+import {pbkdf2, randomBytes} from "crypto";
 import {promisify} from "util";
 
 import {BASE64_ENCODING, KEY_BYTES_32, SALT_BYTES_16} from "../../private/constants";
 import {KeyDerivationModuleImpl} from "../model";
-import {randomBytes} from "../../private/util";
 
 export const deriveKey: KeyDerivationModuleImpl<"pbkdf2">["deriveKey"] = async (password, rule) => {
     const {keyBytes, iterations, digest, saltBytes} = rule.options;

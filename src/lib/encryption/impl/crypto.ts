@@ -1,8 +1,7 @@
-import {createCipheriv, createDecipheriv} from "crypto";
+import {createCipheriv, createDecipheriv, randomBytes} from "crypto";
 
 import {BASE64_ENCODING, SALT_BYTES_16} from "../../private/constants";
 import {EncryptionModuleImpl} from "../model";
-import {randomBytes} from "../../private/util";
 
 export const encrypt: EncryptionModuleImpl<"crypto">["encrypt"] = async (key, inputData, rule) => {
     const {ivBytes, algorithm} = rule.options;
