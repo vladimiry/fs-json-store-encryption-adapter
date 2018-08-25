@@ -8,7 +8,7 @@ const HEADER_END_MARK_BUFFER = Buffer.from([0o0]);
 export class EncryptionAdapter {
     public static default(input: { password: string } | { key: Buffer }) {
         const preset: PasswordBasedPreset = {
-            keyDerivation: {type: "sodium.crypto_pwhash", preset: "mode:interactive|algorithm:default"},
+            keyDerivation: {type: "sodium.crypto_pwhash", preset: "mode:moderate|algorithm:default"},
             encryption: {type: "sodium.crypto_secretbox_easy", preset: "algorithm:default"},
         };
         return new EncryptionAdapter("password" in input
