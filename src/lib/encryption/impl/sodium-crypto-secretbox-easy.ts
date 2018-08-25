@@ -2,6 +2,7 @@ import sodium from "sodium-native";
 import {randomBytes} from "crypto";
 
 import {BASE64_ENCODING} from "../../private/constants";
+import {DecryptionError} from "../../errors";
 import {EncryptionModuleImpl} from "../model";
 
 export const encrypt: EncryptionModuleImpl<"sodium.crypto_secretbox_easy">["encrypt"] = async (key, inputData, rule) => {
@@ -20,7 +21,7 @@ export const decrypt: EncryptionModuleImpl<"sodium.crypto_secretbox_easy">["decr
     const decipher = Buffer.allocUnsafe(inputData.byteLength - sodium.crypto_secretbox_MACBYTES);
 
     if (!sodium.crypto_secretbox_open_easy(decipher, inputData, nonce, key)) {
-        throw new Error("Decryption has failed");
+        throw new DecryptionError(`"sodium.crypto_secretbox_open_easy" decryption has failed`);
     }
 
     return decipher;

@@ -1,10 +1,8 @@
-import combineErrors from "combine-errors";
-
 import * as cryptoImpl from "./impl/crypto";
 import * as Model from "./model";
 import * as sodiumCryptoSecretboxEasyImpl from "./impl/sodium-crypto-secretbox-easy";
 import {assert} from "../private/util";
-import {FailedDecryptionError} from "../errors";
+import {DecryptionError, EncryptionError} from "../errors";
 
 export type Type = "crypto" | "sodium.crypto_secretbox_easy";
 
@@ -36,10 +34,7 @@ export const resolveEncryption = (resolveInput: EncryptionPresets | EncryptionOp
             try {
                 return await implementation.encrypt(key, data, {type, options});
             } catch (error) {
-                throw combineErrors([
-                    new FailedDecryptionError(`Encryption failed (${JSON.stringify({type, preset})})`),
-                    error,
-                ]);
+                throw new EncryptionError(`Encryption failed (${JSON.stringify({type, preset})})`, error);
             }
         },
         async decrypt(key: Buffer, data: Buffer) {
@@ -48,10 +43,7 @@ export const resolveEncryption = (resolveInput: EncryptionPresets | EncryptionOp
             try {
                 return await implementation.decrypt(key, data, rule);
             } catch (error) {
-                throw combineErrors([
-                    new FailedDecryptionError(`Decryption failed (${JSON.stringify(rule)})`),
-                    error,
-                ]);
+                throw new DecryptionError(`Decryption failed (${JSON.stringify(rule)})`, error);
             }
         },
     };

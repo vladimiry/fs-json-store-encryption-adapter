@@ -53,12 +53,19 @@ test("core", async (t) => {
     t.deepEqual(await instance3DiffOpts.read(encryptedDataIteration2), data);
     t.deepEqual(await instance3DiffOpts.read(encryptedData2), data);
 
-    // instance with same preset, but different password: should fail
-    await t.throwsAsync(new EncryptionAdapter({password: randomString.generate(), preset}).read(encryptedData));
-    await t.throwsAsync(new EncryptionAdapter({password: randomString.generate(), preset}).read(encryptedDataIteration2));
-    const err = await t.throwsAsync(new EncryptionAdapter({password: randomString.generate(), preset}).read(encryptedData2));
-    // t.is(err.errors[0].constructor.name, Errors.FailedDecryptionError.name);
-    t.true(err.errors[0] instanceof Errors.FailedDecryptionError);
+    // instance with same preset, but different password should fail with "DecryptionError"
+    await t.throwsAsync(
+        new EncryptionAdapter({password: randomString.generate(), preset}).read(encryptedData),
+        Errors.DecryptionError,
+    );
+    await t.throwsAsync(
+        new EncryptionAdapter({password: randomString.generate(), preset}).read(encryptedDataIteration2),
+        Errors.DecryptionError,
+    );
+    await t.throwsAsync(
+        new EncryptionAdapter({password: randomString.generate(), preset}).read(encryptedData2),
+        Errors.DecryptionError,
+    );
 });
 
 // run with all presets combinations
