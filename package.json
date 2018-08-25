@@ -1,6 +1,6 @@
 {
   "name": "fs-json-store-encryption-adapter",
-  "version": "1.2.0",
+  "version": "1.2.2",
   "description": "Encryption adapter for the \"fs-json-store\" module",
   "author": "Vladimir Yakovlev <dev.vladimir.y@gmail.com> (https://github.com/vladimiry)",
   "license": "MIT",
@@ -44,8 +44,8 @@
     ]
   },
   "dependencies": {
-    "@hscmap/cache-map": "1.2.0",
-    "make-error-cause": "2.2.0",
+    "@hscmap/cache-map": "^1.2.0",
+    "make-error-cause": "^2.2.0",
     "sodium-native": "^2.2.1",
     "tslib": "^1.9.3"
   },
