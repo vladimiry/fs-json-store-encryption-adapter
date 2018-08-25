@@ -4,19 +4,19 @@ import randomString from "randomstring";
 import test from "ava";
 import {randomBytes} from "crypto";
 
-import {Encryption, EncryptionAdapter, Errors, KeyDerivation, PasswordBasedOptions} from "../../dist";
+import {Encryption, EncryptionAdapter, Errors, KeyDerivation, PasswordBasedPreset} from "../../dist";
 import {ENCRYPTED_PRESETS_DUMPS, forEachPreset, resolveSkippedPresets} from "./util";
 // tslint:disable-next-line:no-import-zones
 import {KEY_BYTES_32} from "../lib/private/constants";
 
 test("core", async (t) => {
-    const options: { keyDerivation: KeyDerivation.KeyDerivationPresets; encryption: Encryption.EncryptionPresets } = {
+    const preset: { keyDerivation: KeyDerivation.KeyDerivationPresets; encryption: Encryption.EncryptionPresets } = {
         keyDerivation: {type: "sodium.crypto_pwhash", preset: "mode:interactive|algorithm:default"},
         encryption: {type: "sodium.crypto_secretbox_easy", preset: "algorithm:default"},
     };
     const data = Buffer.from("super secret data 123" + randomString.generate());
     const password = randomString.generate();
-    const instance = new EncryptionAdapter({password, options});
+    const instance = new EncryptionAdapter({password, preset});
 
     // iteration 1
     const encryptedData = await instance.write(data);
@@ -24,7 +24,7 @@ test("core", async (t) => {
     t.true(encryptedData.toString().indexOf(data.toString()) === -1, "encrypted text should not contain the original text");
     const decryptedData = await instance.read(encryptedData);
     t.deepEqual(decryptedData, data);
-    t.deepEqual(await new EncryptionAdapter({password, options}).read(encryptedData), data, "read using new adapter instance");
+    t.deepEqual(await new EncryptionAdapter({password, preset}).read(encryptedData), data, "read using new adapter instance");
 
     // iteration 2
     const encryptedDataIteration2 = await instance.write(data);
@@ -33,18 +33,18 @@ test("core", async (t) => {
         "same data encrypted with the same password should differ from the data encrypted on the previous iteration (random salt)");
     t.deepEqual(decryptedDataIteration2, decryptedData);
 
-    // new instance with the same options
-    const instance2 = new EncryptionAdapter({password, options});
+    // new instance with the same preset
+    const instance2 = new EncryptionAdapter({password, preset});
     const encryptedData2 = await instance2.write(data);
     const decryptedData2 = await instance2.read(encryptedData2);
     t.deepEqual(decryptedData2, decryptedData);
     t.notDeepEqual(encryptedData2, encryptedData,
         "same data encrypted with the same password should differ from encrypted with previous adapter instance (random salt)");
 
-    // instance with different options, same password: should be able to read all the data previously encrypted with the same password
+    // instance with different preset, same password: should be able to read all the data previously encrypted with the same password
     const instance3DiffOpts = new EncryptionAdapter({
         password,
-        options: {
+        preset: {
             keyDerivation: {type: "sodium.crypto_pwhash", preset: "mode:sensitive|algorithm:default"},
             encryption: {type: "crypto", preset: "algorithm:aes-256-cbc"},
         },
@@ -53,10 +53,10 @@ test("core", async (t) => {
     t.deepEqual(await instance3DiffOpts.read(encryptedDataIteration2), data);
     t.deepEqual(await instance3DiffOpts.read(encryptedData2), data);
 
-    // instance with same options, but different password: should fail
-    await t.throwsAsync(new EncryptionAdapter({password: randomString.generate(), options}).read(encryptedData));
-    await t.throwsAsync(new EncryptionAdapter({password: randomString.generate(), options}).read(encryptedDataIteration2));
-    const err = await t.throwsAsync(new EncryptionAdapter({password: randomString.generate(), options}).read(encryptedData2));
+    // instance with same preset, but different password: should fail
+    await t.throwsAsync(new EncryptionAdapter({password: randomString.generate(), preset}).read(encryptedData));
+    await t.throwsAsync(new EncryptionAdapter({password: randomString.generate(), preset}).read(encryptedDataIteration2));
+    const err = await t.throwsAsync(new EncryptionAdapter({password: randomString.generate(), preset}).read(encryptedData2));
     // t.is(err.errors[0].constructor.name, Errors.FailedDecryptionError.name);
     t.true(err.errors[0] instanceof Errors.FailedDecryptionError);
 });
@@ -66,20 +66,20 @@ test("core", async (t) => {
 (async () => {
     const set = new Set();
 
-    await forEachPreset(async (options: PasswordBasedOptions) => {
+    await forEachPreset(async (preset: PasswordBasedPreset) => {
         const adapterBuilders = [
             {
                 title: "password based",
-                input: {password: randomString.generate(), options},
+                input: {password: randomString.generate(), preset},
             },
             {
                 title: "key based",
-                input: {key: randomBytes(KEY_BYTES_32), options: {encryption: options.encryption}},
+                input: {key: randomBytes(KEY_BYTES_32), preset: {encryption: preset.encryption}},
             },
         ];
 
         for (const adapterBuilder of adapterBuilders) {
-            const uniqueOptions = JSON.stringify(adapterBuilder.input.options);
+            const uniqueOptions = JSON.stringify(adapterBuilder.input.preset);
 
             if (!set.has(uniqueOptions)) {
                 set.add(uniqueOptions);

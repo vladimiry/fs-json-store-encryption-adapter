@@ -44,13 +44,14 @@
     ]
   },
   "dependencies": {
+    "@hscmap/cache-map": "1.2.0",
     "combine-errors": "^3.0.3",
     "sodium-native": "^2.2.1",
     "tslib": "^1.9.3"
   },
   "devDependencies": {
     "@types/mkdirp": "^0.5.2",
-    "@types/node": "^10.9.1",
+    "@types/node": "^10.9.2",
     "@types/randomstring": "^1.1.6",
     "ava": "^1.0.0-beta.6",
     "cpx": "^1.5.0",

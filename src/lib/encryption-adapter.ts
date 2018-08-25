@@ -1,3 +1,5 @@
+import {CacheMap} from "@hscmap/cache-map";
+
 import {EncryptionOptions, EncryptionPresets, resolveEncryption} from "./encryption";
 import {KeyDerivationOptions, KeyDerivationPresets, resolveKeyDerivation} from "./key-derivation";
 
@@ -5,14 +7,18 @@ const HEADER_END_MARK_BUFFER = Buffer.from([0o0]);
 
 export class EncryptionAdapter {
     public static default(input: { password: string } | { key: Buffer }) {
-        const options: PasswordBasedOptions = {
+        const preset: PasswordBasedPreset = {
             keyDerivation: {type: "sodium.crypto_pwhash", preset: "mode:interactive|algorithm:default"},
             encryption: {type: "sodium.crypto_secretbox_easy", preset: "algorithm:default"},
         };
         return new EncryptionAdapter("password" in input
-            ? {password: input.password, options}
-            : {key: input.key, options: {encryption: options.encryption}},
+            ? {password: input.password, preset}
+            : {key: input.key, preset: {encryption: preset.encryption}},
         );
+    }
+
+    private static buildKeyDerivationCacheKey(input: KeyDerivationOptions): string {
+        return JSON.stringify(input);
     }
 
     private readonly encryptionPreset: EncryptionPresets;
@@ -22,20 +28,35 @@ export class EncryptionAdapter {
     private readonly resolveEncryptionKeyData: () => Promise<{ key: Buffer; keyDerivation?: KeyDerivationOptions }>;
 
     constructor(
-        input: { password: string, options: PasswordBasedOptions } | { key: Buffer, options: KeyBasedOptions },
+        input: { password: string, preset: PasswordBasedPreset } | { key: Buffer, preset: KeyBasedPreset },
+        options: { keyDerivationCache: boolean; keyDerivationCacheLimit?: number } = {keyDerivationCache: false},
     ) {
-        this.encryptionPreset = input.options.encryption;
+        this.encryptionPreset = input.preset.encryption;
 
         if ("password" in input) {
+            const keyDerivationCache = options.keyDerivationCache
+                ? new CacheMap<string, Buffer>(
+                    typeof options.keyDerivationCacheLimit !== "undefined" ? options.keyDerivationCacheLimit : 100,
+                )
+                : null;
             this.resolveDecryptionKey = async (header) => {
                 if (!("keyDerivation" in header)) {
                     throw new Error(`File header doesn't contain the "keyDerivation" section`);
+                }
+                if (keyDerivationCache) {
+                    const keyFromCache = keyDerivationCache.get(EncryptionAdapter.buildKeyDerivationCacheKey(header.keyDerivation));
+                    if (keyFromCache) {
+                        return {key: keyFromCache};
+                    }
                 }
                 const {key} = await resolveKeyDerivation(header.keyDerivation).deriveKey(input.password);
                 return {key};
             };
             this.resolveEncryptionKeyData = async () => {
-                const {key, rule: keyDerivation} = await resolveKeyDerivation(input.options.keyDerivation).deriveKey(input.password);
+                const {key, rule: keyDerivation} = await resolveKeyDerivation(input.preset.keyDerivation).deriveKey(input.password);
+                if (keyDerivationCache) {
+                    keyDerivationCache.set(EncryptionAdapter.buildKeyDerivationCacheKey(keyDerivation), key);
+                }
                 return {key, keyDerivation};
             };
         } else {
@@ -68,12 +89,12 @@ export class EncryptionAdapter {
     }
 }
 
-export interface PasswordBasedOptions {
+export interface PasswordBasedPreset {
     keyDerivation: KeyDerivationPresets;
     encryption: EncryptionPresets;
 }
 
-export type KeyBasedOptions = Pick<PasswordBasedOptions, "encryption">;
+export type KeyBasedPreset = Pick<PasswordBasedPreset, "encryption">;
 
 export interface PasswordBasedFileHeader {
     keyDerivation: KeyDerivationOptions;

@@ -62,13 +62,13 @@ if (!password) {
 (async () => {
     const store = new Store<DataModel>({
         file: "./data.bin",
-        adapter: new EncryptionAdapter(
+        adapter: new EncryptionAdapter({
             password,
-            {
+            preset: {
                 keyDerivation: {type: "sodium.crypto_pwhash", preset: "mode:interactive|algorithm:default"},
                 encryption: {type: "sodium.crypto_secretbox_easy", preset: "algorithm:default"},
             },
-        ),
+        }),
     });
     const data = await store.write({someProperty: "super secret data"}); // writes encrypted data into the `./data.bin` file
     console.log(data); // prints stored data
@@ -77,7 +77,7 @@ if (!password) {
 
 // standalone example using default options
 (async () => {
-    const adapter = EncryptionAdapter.default(password);
+    const adapter = EncryptionAdapter.default({password});
     const dataBuffer = Buffer.from("super secret data");
     const encryptedDataBuffer = await adapter.write(dataBuffer);
     const decryptedDataBuffer = await adapter.read(encryptedDataBuffer);
@@ -102,13 +102,13 @@ if (!password) {
 (() => {
     const store = new Store({
         file: "./data.bin",
-        adapter: new EncryptionAdapter(
+        adapter: new EncryptionAdapter({
             password,
-            {
+            preset: {
                 keyDerivation: {type: "pbkdf2", preset: "mode:interactive|digest:sha256"},
                 encryption: {type: "sodium.crypto_secretbox_easy", preset: "algorithm:default"},
             },
-        ),
+        }),
     });
 
     store
@@ -120,7 +120,7 @@ if (!password) {
 
 // standalone example using default options
 (() => {
-    const adapter = EncryptionAdapter.default(password);
+    const adapter = EncryptionAdapter.default({password});
 
     adapter
         .write(Buffer.from("super secret data"))

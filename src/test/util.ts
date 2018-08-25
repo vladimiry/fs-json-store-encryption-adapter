@@ -5,11 +5,11 @@ import randomString from "randomstring";
 import {promisify} from "util";
 import {randomBytes} from "crypto";
 
-import {Encryption, EncryptionAdapter, KeyDerivation, PasswordBasedOptions} from "../../dist";
+import {Encryption, EncryptionAdapter, KeyDerivation, PasswordBasedPreset} from "../../dist";
 // tslint:disable-next-line:no-import-zones
 import {KEY_BYTES_32} from "../lib/private/constants";
 
-export async function forEachPreset(action: (options: PasswordBasedOptions, iterationIndex: number) => Promise<void>) {
+export async function forEachPreset(action: (preset: PasswordBasedPreset, iterationIndex: number) => Promise<void>) {
     const keyDerivationBundles = KeyDerivation.implementations as any;
     const encryptionBundles = Encryption.implementations as any;
     let iterationIndex = 0;
@@ -18,22 +18,22 @@ export async function forEachPreset(action: (options: PasswordBasedOptions, iter
         Object.keys(keyDerivationBundles[keyDerivationType].optionsPresets).forEach((keyDerivationPreset) => {
             Object.keys(encryptionBundles).forEach((encryptionType) => {
                 Object.keys(encryptionBundles[encryptionType].optionsPresets).forEach(async (encryptionPreset) => {
-                    const options: any = {
+                    const preset: any = {
                         keyDerivation: {type: keyDerivationType, preset: keyDerivationPreset},
                         encryption: {type: encryptionType, preset: encryptionPreset},
                     };
-                    const stringifyedPasswordBasedOptions = JSON.stringify(options);
-                    const skippingPresets = resolveSkippedPresets(stringifyedPasswordBasedOptions);
+                    const stringifyedPasswordBasedPreset = JSON.stringify(preset);
+                    const skippingPresets = resolveSkippedPresets(stringifyedPasswordBasedPreset);
 
                     iterationIndex++;
 
                     if (skippingPresets.length) {
                         // tslint:disable-next-line:no-console
-                        console.log(`skipping "${JSON.stringify(skippingPresets)}" presets processing: ${stringifyedPasswordBasedOptions}`);
+                        console.log(`skipping "${JSON.stringify(skippingPresets)}" presets processing: ${stringifyedPasswordBasedPreset}`);
                         return;
                     }
 
-                    await action(options, iterationIndex);
+                    await action(preset, iterationIndex);
                 });
             });
         });
@@ -68,32 +68,32 @@ if (process.env.GENERATE_ENCRYPTED_PRESETS_DUMPS) {
         await promisify(fs.writeFile)(path.join(outputDirectory, "password.txt"), password);
         await promisify(fs.writeFile)(path.join(outputDirectory, "key.bin"), key);
 
-        await forEachPreset(async (options: PasswordBasedOptions) => {
+        await forEachPreset(async (preset: PasswordBasedPreset) => {
             const passwordBasedFile = path.join(
                 outputDirectory,
                 safeFsCharacters([
-                    options.keyDerivation.type,
-                    options.keyDerivation.preset,
-                    options.encryption.type,
-                    options.encryption.preset,
+                    preset.keyDerivation.type,
+                    preset.keyDerivation.preset,
+                    preset.encryption.type,
+                    preset.encryption.preset,
                 ].join("--")) + ".bin",
             );
             // tslint:disable-next-line:no-console
             console.log(`writing ${passwordBasedFile}`);
-            await promisify(fs.writeFile)(passwordBasedFile, await new EncryptionAdapter({password, options}).write(dataBuffer));
+            await promisify(fs.writeFile)(passwordBasedFile, await new EncryptionAdapter({password, preset}).write(dataBuffer));
 
             const keyBasedFile = path.join(
                 outputDirectory,
                 safeFsCharacters([
-                    options.encryption.type,
-                    options.encryption.preset,
+                    preset.encryption.type,
+                    preset.encryption.preset,
                 ].join("--")) + ".key.bin",
             );
             // tslint:disable-next-line:no-console
             console.log(`writing ${keyBasedFile}`);
             await promisify(fs.writeFile)(keyBasedFile, await new EncryptionAdapter({
                 key,
-                options: {encryption: options.encryption},
+                preset: {encryption: preset.encryption},
             }).write(dataBuffer));
         });
     })();
