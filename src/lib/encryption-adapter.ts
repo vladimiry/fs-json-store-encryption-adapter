@@ -1,6 +1,5 @@
-import {CacheMap} from "@hscmap/cache-map";
-
 import {EncryptionOptions, EncryptionPresets, resolveEncryption} from "./encryption";
+import {KeyDerivationCache} from "./private/key-derivation-cache";
 import {KeyDerivationOptions, KeyDerivationPresets, resolveKeyDerivation} from "./key-derivation";
 
 const HEADER_END_MARK_BUFFER = Buffer.from([0o0]);
@@ -17,10 +16,6 @@ export class EncryptionAdapter {
         );
     }
 
-    private static buildKeyDerivationCacheKey(input: KeyDerivationOptions): string {
-        return JSON.stringify(input);
-    }
-
     private readonly encryptionPreset: EncryptionPresets;
 
     private readonly resolveDecryptionKey: ((header: PasswordBasedFileHeader | KeyBasedFileHeader) => Promise<{ key: Buffer }>);
@@ -34,29 +29,34 @@ export class EncryptionAdapter {
         this.encryptionPreset = input.preset.encryption;
 
         if ("password" in input) {
-            const keyDerivationCache = options.keyDerivationCache
-                ? new CacheMap<string, Buffer>(
-                    typeof options.keyDerivationCacheLimit !== "undefined" ? options.keyDerivationCacheLimit : 100,
-                )
-                : null;
+            const keyDerivationCache = options.keyDerivationCache ? new KeyDerivationCache(options.keyDerivationCacheLimit) : null;
+
             this.resolveDecryptionKey = async (header) => {
                 if (!("keyDerivation" in header)) {
-                    throw new Error(`File header doesn't contain the "keyDerivation" section`);
+                    throw new Error(`Header doesn't contain the "keyDerivation" section`);
                 }
+
+                const keyFromCache = keyDerivationCache && keyDerivationCache.get(header.keyDerivation);
+
+                if (keyFromCache) {
+                    return {key: keyFromCache};
+                }
+
+                const {key, rule: keyDerivation} = await resolveKeyDerivation(header.keyDerivation).deriveKey(input.password);
+
                 if (keyDerivationCache) {
-                    const keyFromCache = keyDerivationCache.get(EncryptionAdapter.buildKeyDerivationCacheKey(header.keyDerivation));
-                    if (keyFromCache) {
-                        return {key: keyFromCache};
-                    }
+                    keyDerivationCache.set(keyDerivation, key);
                 }
-                const {key} = await resolveKeyDerivation(header.keyDerivation).deriveKey(input.password);
+
                 return {key};
             };
             this.resolveEncryptionKeyData = async () => {
                 const {key, rule: keyDerivation} = await resolveKeyDerivation(input.preset.keyDerivation).deriveKey(input.password);
+
                 if (keyDerivationCache) {
-                    keyDerivationCache.set(EncryptionAdapter.buildKeyDerivationCacheKey(keyDerivation), key);
+                    keyDerivationCache.set(keyDerivation, key);
                 }
+
                 return {key, keyDerivation};
             };
         } else {
