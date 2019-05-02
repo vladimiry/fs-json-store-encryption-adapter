@@ -46,23 +46,23 @@
   "dependencies": {
     "@hscmap/cache-map": "^1.2.0",
     "make-error-cause": "^2.2.0",
-    "sodium-native": "^2.2.6",
+    "sodium-native": "^2.4.2",
     "tslib": "^1.9.3"
   },
   "devDependencies": {
     "@types/mkdirp": "^0.5.2",
-    "@types/node": "^10.12.21",
+    "@types/node": "^11.13.8",
     "@types/randomstring": "^1.1.6",
-    "ava": "^1.2.1",
+    "ava": "^1.4.1",
     "cpx": "^1.5.0",
     "cross-env": "^5.2.0",
     "mkdirp": "^0.5.1",
     "npm-run-all": "^4.1.5",
     "randomstring": "^1.1.5",
     "rimraf": "^2.6.3",
-    "ts-node": "^8.0.2",
-    "tslint": "^5.12.1",
+    "ts-node": "^8.1.0",
+    "tslint": "^5.16.0",
     "tslint-rules-bunch": "^0.0.7",
-    "typescript": "^3.3.1"
+    "typescript": "^3.4.5"
   }
 }
