@@ -21,7 +21,7 @@
       "es2015"
     ],
     "baseUrl": ".",
-    "outDir": "./dist",
+    "outDir": "./lib",
     "typeRoots": [
       "./node_modules/@types",
       "./src/@types"

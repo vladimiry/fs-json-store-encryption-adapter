@@ -1,7 +1,7 @@
 import test from "ava";
 import randomString from "randomstring";
 
-import {EncryptionAdapter, PasswordBasedPreset} from "../../dist";
+import {EncryptionAdapter, PasswordBasedPreset} from "lib";
 
 test("keyDerivationCache", async (t) => {
     const noCacheTime = await calcTime(false);

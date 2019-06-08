@@ -5,9 +5,9 @@ import randomString from "randomstring";
 import {promisify} from "util";
 import {randomBytes} from "crypto";
 
-import {Encryption, EncryptionAdapter, KeyDerivation, PasswordBasedPreset} from "../../dist";
+import {Encryption, EncryptionAdapter, KeyDerivation, PasswordBasedPreset} from "lib";
 // tslint:disable-next-line:no-import-zones
-import {KEY_BYTES_32} from "../lib/private/constants";
+import {KEY_BYTES_32} from "lib/private/constants";
 
 export async function forEachPreset(action: (preset: PasswordBasedPreset, iterationIndex: number) => Promise<void>) {
     const keyDerivationBundles = KeyDerivation.implementations as any;

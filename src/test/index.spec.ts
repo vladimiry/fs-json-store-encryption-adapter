@@ -4,10 +4,10 @@ import randomString from "randomstring";
 import test from "ava";
 import {randomBytes} from "crypto";
 
-import {Encryption, EncryptionAdapter, Errors, KeyDerivation, PasswordBasedPreset} from "../../dist";
+import {Encryption, EncryptionAdapter, Errors, KeyDerivation, PasswordBasedPreset} from "lib";
 import {ENCRYPTED_PRESETS_DUMPS, forEachPreset, resolveSkippedPresets} from "./util";
 // tslint:disable-next-line:no-import-zones
-import {KEY_BYTES_32} from "../lib/private/constants";
+import {KEY_BYTES_32} from "lib/private/constants";
 
 test("core", async (t) => {
     const preset: { keyDerivation: KeyDerivation.KeyDerivationPresets; encryption: Encryption.EncryptionPresets } = {
