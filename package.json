@@ -42,7 +42,7 @@
     "require": [
       "ts-node/register"
     ],
-    "timeout": "300s",
+    "timeout": "900s",
     "verbose": true
   },
   "dependencies": {

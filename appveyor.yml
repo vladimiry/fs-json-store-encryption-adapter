@@ -3,16 +3,18 @@ environment:
     - nodejs_version: "10"
     - nodejs_version: "12"
   TEST_SKIP_PRESETS: "sensitive, moderate"
+build: off
+test: off
 install:
   - ps: Install-Product node $env:nodejs_version
   - ps: | # installing the most recent yarn version
       (New-Object Net.WebClient).DownloadFile("https://yarnpkg.com/latest.msi", "$env:temp\yarn.msi")
       cmd /c start /wait msiexec.exe /i $env:temp\yarn.msi /quiet /qn /norestart
-  - yarn install
-build: off
-test_script:
+before_build:
   - node --version
   - npm --version
   - yarn --version
   - npx envinfo
-  - yarn run lib
+  - yarn --pure-lockfile
+build_script:
+  - yarn lib
