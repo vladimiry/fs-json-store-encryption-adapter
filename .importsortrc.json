@@ -1,0 +1,6 @@
+{
+  ".ts": {
+    "parser": "typescript",
+    "style": "@vladimiry/import-sort-style"
+  }
+}

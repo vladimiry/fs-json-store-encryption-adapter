@@ -1,8 +1,8 @@
 import {pbkdf2, randomBytes} from "crypto";
 import {promisify} from "util";
 
-import {BASE64_ENCODING, KEY_BYTES_32, SALT_BYTES_16} from "../../private/constants";
-import {KeyDerivationModuleImpl} from "../model";
+import {BASE64_ENCODING, KEY_BYTES_32, SALT_BYTES_16} from "src/lib/private/constants";
+import {KeyDerivationModuleImpl} from "src/lib/key-derivation/model";
 
 export const deriveKey: KeyDerivationModuleImpl<"pbkdf2">["deriveKey"] = async (password, rule) => {
     const {keyBytes, iterations, digest, saltBytes} = rule.options;
@@ -17,7 +17,7 @@ const sha256DigestOptions = {
     keyBytes: KEY_BYTES_32,
     saltBytes: SALT_BYTES_16,
     digest: "sha256",
-};
+} as const;
 
 export const optionsPresets = {
     "mode:interactive|digest:sha256": {
@@ -32,15 +32,15 @@ export const optionsPresets = {
         ...sha256DigestOptions,
         iterations: 1152000,
     },
-};
+} as const;
 
 export interface Options {
-    keyBytes: number;
-    saltBytes: number;
-    iterations: number;
-    digest: string;
+    readonly keyBytes: number;
+    readonly saltBytes: number;
+    readonly iterations: number;
+    readonly digest: string;
 }
 
 export interface Data {
-    saltBase64: string;
+    readonly saltBase64: string;
 }

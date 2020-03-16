@@ -1,30 +1,32 @@
-import * as cryptoImpl from "./impl/crypto";
 import * as Model from "./model";
+import * as cryptoImpl from "./impl/crypto";
 import * as sodiumCryptoSecretboxEasyImpl from "./impl/sodium-crypto-secretbox-easy";
-import {assert} from "../private/util";
-import {DecryptionError, EncryptionError} from "../errors";
+import {DecryptionError, EncryptionError} from "src/lib/errors";
+import {assert} from "src/lib/private/util";
 
 export type Type = "crypto" | "sodium.crypto_secretbox_easy";
 
 export type EncryptionPresets =
-    | { type: "crypto"; preset: keyof typeof cryptoImpl.optionsPresets; }
-    | { type: "sodium.crypto_secretbox_easy"; preset: keyof typeof sodiumCryptoSecretboxEasyImpl.optionsPresets; };
+    | Readonly<{ type: "crypto"; preset: keyof typeof cryptoImpl.optionsPresets }>
+    | Readonly<{ type: "sodium.crypto_secretbox_easy"; preset: keyof typeof sodiumCryptoSecretboxEasyImpl.optionsPresets }>;
 
 export type EncryptionOptions =
-    | { type: "crypto", options: cryptoImpl.Options, data: cryptoImpl.Data }
-    | { type: "sodium.crypto_secretbox_easy", options: sodiumCryptoSecretboxEasyImpl.Options, data: sodiumCryptoSecretboxEasyImpl.Data };
+    | Readonly<{ type: "crypto"; options: cryptoImpl.Options; data: cryptoImpl.Data }>
+    | Readonly<{ type: "sodium.crypto_secretbox_easy"; options: sodiumCryptoSecretboxEasyImpl.Options; data: sodiumCryptoSecretboxEasyImpl.Data }>;
 
-export const implementations: Record<Type, Model.EncryptionModuleImpl> = {
+export const implementations: Readonly<Record<Type, Model.EncryptionModuleImpl>> = {
     "crypto": cryptoImpl,
     "sodium.crypto_secretbox_easy": sodiumCryptoSecretboxEasyImpl,
 };
 
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export const resolveEncryption = (resolveInput: EncryptionPresets | EncryptionOptions) => {
     const implementation = implementations[resolveInput.type];
 
     assert(implementation, `Unsupported encryption implementation "${JSON.stringify(resolveInput)}"`);
 
     return {
+        // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
         async encrypt(key: Buffer, data: Buffer) {
             const {type, preset} = resolveInput as EncryptionPresets;
             const options = implementation.optionsPresets[preset];
@@ -37,6 +39,7 @@ export const resolveEncryption = (resolveInput: EncryptionPresets | EncryptionOp
                 throw new EncryptionError(`Encryption failed (${JSON.stringify({type, preset})})`, error);
             }
         },
+        // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
         async decrypt(key: Buffer, data: Buffer) {
             const rule = resolveInput as EncryptionOptions;
 

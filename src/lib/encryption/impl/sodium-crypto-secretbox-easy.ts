@@ -1,15 +1,15 @@
-import sodium from "sodium-native";
 import {randomBytes} from "crypto";
 
-import {BASE64_ENCODING} from "../../private/constants";
-import {DecryptionError} from "../../errors";
-import {EncryptionModuleImpl} from "../model";
+import sodium from "src/lib/private/sodium-native-loader";
+import {BASE64_ENCODING} from "src/lib/private/constants";
+import {DecryptionError} from "src/lib/errors";
+import {EncryptionModuleImpl} from "src/lib/encryption/model";
 
 export const encrypt: EncryptionModuleImpl<"sodium.crypto_secretbox_easy">["encrypt"] = async (key, inputData, rule) => {
     const {nonceBytes} = rule.options;
     const data = {nonceBase64: randomBytes(nonceBytes).toString(BASE64_ENCODING)};
     const nonce = Buffer.from(data.nonceBase64, BASE64_ENCODING);
-    const cipher = Buffer.allocUnsafe(inputData.byteLength + sodium.crypto_secretbox_MACBYTES);
+    const cipher = Buffer.allocUnsafe(inputData.byteLength + sodium.crypto_box_MACBYTES);
 
     sodium.crypto_secretbox_easy(cipher, inputData, nonce, key);
 
@@ -18,7 +18,7 @@ export const encrypt: EncryptionModuleImpl<"sodium.crypto_secretbox_easy">["encr
 
 export const decrypt: EncryptionModuleImpl<"sodium.crypto_secretbox_easy">["decrypt"] = async (key, inputData, rule) => {
     const nonce = Buffer.from(rule.data.nonceBase64, BASE64_ENCODING);
-    const decipher = Buffer.allocUnsafe(inputData.byteLength - sodium.crypto_secretbox_MACBYTES);
+    const decipher = Buffer.allocUnsafe(inputData.byteLength - sodium.crypto_box_MACBYTES);
 
     if (!sodium.crypto_secretbox_open_easy(decipher, inputData, nonce, key)) {
         throw new DecryptionError(`"sodium.crypto_secretbox_open_easy" decryption has failed`);
@@ -29,14 +29,14 @@ export const decrypt: EncryptionModuleImpl<"sodium.crypto_secretbox_easy">["decr
 
 export const optionsPresets = {
     "algorithm:default": {
-        nonceBytes: sodium.crypto_secretbox_NONCEBYTES,
+        nonceBytes: sodium.crypto_box_NONCEBYTES,
     },
-};
+} as const;
 
 export interface Options {
-    nonceBytes: number;
+    readonly nonceBytes: number;
 }
 
 export interface Data {
-    nonceBase64: string;
+    readonly nonceBase64: string;
 }

@@ -4,9 +4,8 @@ import randomString from "randomstring";
 import test from "ava";
 import {randomBytes} from "crypto";
 
-import {Encryption, EncryptionAdapter, Errors, KeyDerivation, PasswordBasedPreset} from "lib";
 import {ENCRYPTED_PRESETS_DUMPS, forEachPreset, resolveSkippedPresets} from "./util";
-// tslint:disable-next-line:no-import-zones
+import {Encryption, EncryptionAdapter, Errors, KeyDerivation, PasswordBasedPreset} from "lib";
 import {KEY_BYTES_32} from "lib/private/constants";
 
 test("core", async (t) => {
@@ -56,61 +55,61 @@ test("core", async (t) => {
     // instance with same preset, but different password should fail with "DecryptionError"
     await t.throwsAsync(
         new EncryptionAdapter({password: randomString.generate(), preset}).read(encryptedData),
-        Errors.DecryptionError,
+        {name: Errors.DecryptionError.name},
     );
     await t.throwsAsync(
         new EncryptionAdapter({password: randomString.generate(), preset}).read(encryptedDataIteration2),
-        Errors.DecryptionError,
+        {name: Errors.DecryptionError.name},
     );
     await t.throwsAsync(
         new EncryptionAdapter({password: randomString.generate(), preset}).read(encryptedData2),
-        Errors.DecryptionError,
+        {name: Errors.DecryptionError.name},
     );
 });
 
 // run with all presets combinations
-// tslint:disable-next-line:no-floating-promises
-(async () => {
+(async () => { // eslint-disable-line @typescript-eslint/explicit-function-return-type, @typescript-eslint/no-floating-promises
     const set = new Set();
 
-    await forEachPreset(async (preset: PasswordBasedPreset) => {
-        const adapterBuilders = [
-            {
-                title: "password based",
-                input: {password: randomString.generate(), preset},
-            },
-            {
-                title: "key based",
-                input: {key: randomBytes(KEY_BYTES_32), preset: {encryption: preset.encryption}},
-            },
-        ];
+    await forEachPreset(
+        async (preset: PasswordBasedPreset) => {
+            const adapterBuilders = [
+                {
+                    title: "password based",
+                    input: {password: randomString.generate(), preset},
+                },
+                {
+                    title: "key based",
+                    input: {key: randomBytes(KEY_BYTES_32), preset: {encryption: preset.encryption}},
+                },
+            ];
 
-        for (const adapterBuilder of adapterBuilders) {
-            const uniqueOptions = JSON.stringify(adapterBuilder.input.preset);
+            for (const adapterBuilder of adapterBuilders) {
+                const uniqueOptions = JSON.stringify(adapterBuilder.input.preset);
 
-            if (!set.has(uniqueOptions)) {
-                set.add(uniqueOptions);
+                if (!set.has(uniqueOptions)) {
+                    set.add(uniqueOptions);
 
-                test.serial(`${adapterBuilder.title} write/read: ${JSON.stringify(adapterBuilder.input)}"`, async (t) => {
-                    const instance = new EncryptionAdapter(adapterBuilder.input);
-                    const data = Buffer.from(randomString.generate());
-                    const encryptedData = await instance.write(data);
-                    const decryptedData = await instance.read(encryptedData);
-                    const encryptedData2 = await instance.write(data);
-                    const decryptedData2 = await instance.read(encryptedData);
+                    test.serial(`${adapterBuilder.title} write/read: ${JSON.stringify(adapterBuilder.input)}"`, async (t) => {
+                        const instance = new EncryptionAdapter(adapterBuilder.input);
+                        const data = Buffer.from(randomString.generate());
+                        const encryptedData = await instance.write(data);
+                        const decryptedData = await instance.read(encryptedData);
+                        const encryptedData2 = await instance.write(data);
+                        const decryptedData2 = await instance.read(encryptedData);
 
-                    t.deepEqual(decryptedData, data);
-                    t.deepEqual(decryptedData2, data);
-                    t.notDeepEqual(encryptedData2, encryptedData);
-                });
+                        t.deepEqual(decryptedData, data);
+                        t.deepEqual(decryptedData2, data);
+                        t.notDeepEqual(encryptedData2, encryptedData);
+                    });
+                }
             }
-        }
-    });
+        },
+    );
 })();
 
 // regression decrypting
-// tslint:disable-next-line:no-floating-promises
-(async () => {
+(async () => { // eslint-disable-line @typescript-eslint/explicit-function-return-type, @typescript-eslint/no-floating-promises
     const {dumpsOutputDirectory, dataBuffer} = ENCRYPTED_PRESETS_DUMPS;
 
     if (!fs.existsSync(dumpsOutputDirectory)) {
@@ -119,10 +118,10 @@ test("core", async (t) => {
 
     for (const versionDirectory of fs.readdirSync(dumpsOutputDirectory)) {
         const directory = path.join(dumpsOutputDirectory, versionDirectory);
-        const password: any = fs.existsSync(path.join(directory, "password.txt"))
+        const password: any = fs.existsSync(path.join(directory, "password.txt")) // eslint-disable-line @typescript-eslint/no-explicit-any
             ? fs.readFileSync(path.join(directory, "password.txt")).toString().trim()
             : null;
-        const key: any = fs.existsSync(path.join(directory, "key.bin"))
+        const key: any = fs.existsSync(path.join(directory, "key.bin")) // eslint-disable-line @typescript-eslint/no-explicit-any
             ? fs.readFileSync(path.join(directory, "key.bin"))
             : null;
 
@@ -138,7 +137,7 @@ test("core", async (t) => {
             const skippingPresets = resolveSkippedPresets(fileName);
 
             if (skippingPresets.length) {
-                // tslint:disable-next-line:no-console
+                // eslint-disable-next-line no-console
                 console.log(`skipping "${JSON.stringify(skippingPresets)}" presets processing for file: ${fileName}`);
                 continue;
             }

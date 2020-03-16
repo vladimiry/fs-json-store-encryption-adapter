@@ -1,7 +1,7 @@
 import {createCipheriv, createDecipheriv, randomBytes} from "crypto";
 
-import {BASE64_ENCODING, SALT_BYTES_16} from "../../private/constants";
-import {EncryptionModuleImpl} from "../model";
+import {BASE64_ENCODING, SALT_BYTES_16} from "src/lib/private/constants";
+import {EncryptionModuleImpl} from "src/lib/encryption/model";
 
 export const encrypt: EncryptionModuleImpl<"crypto">["encrypt"] = async (key, inputData, rule) => {
     const {ivBytes, algorithm} = rule.options;
@@ -26,13 +26,13 @@ export const optionsPresets = {
         ivBytes: SALT_BYTES_16,
         algorithm: "aes-256-cbc",
     },
-};
+} as const;
 
 export interface Options {
-    ivBytes: number;
-    algorithm: string;
+    readonly ivBytes: number;
+    readonly algorithm: string;
 }
 
 export interface Data {
-    ivBase64: string;
+    readonly ivBase64: string;
 }

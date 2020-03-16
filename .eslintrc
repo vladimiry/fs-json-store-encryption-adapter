@@ -1,0 +1,47 @@
+{
+  "plugins": [
+    "@typescript-eslint",
+    "import"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": 2020,
+    "sourceType": "module",
+    "project": "./tsconfig.json"
+  },
+  "settings": {
+    "import/resolver": {
+      "typescript": {}
+    }
+  },
+  "extends": [
+    "eslint:recommended",
+    "plugin:import/errors",
+    "plugin:import/warnings",
+    "plugin:@typescript-eslint/eslint-recommended",
+    "plugin:@typescript-eslint/recommended"
+  ],
+  "rules": {
+    "@typescript-eslint/no-floating-promises": "error",
+    "@typescript-eslint/promise-function-async": "error",
+    "@typescript-eslint/require-await": "warn",
+    "no-console": "error",
+    "no-return-await": "error",
+    "no-unused-expressions": "error",
+    "no-restricted-imports": [
+      "error",
+      "sodium-native"
+    ],
+    "import/no-restricted-paths": [
+      "error",
+      {
+        "zones": [
+          {
+            "target": "./src/test",
+            "from": "./src/lib"
+          }
+        ]
+      }
+    ]
+  }
+}

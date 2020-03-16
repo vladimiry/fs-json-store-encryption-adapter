@@ -1,5 +1,3 @@
-// tslint:disable:max-classes-per-file
-
 import {BaseError} from "make-error-cause";
 
 export class EncryptionError extends BaseError {

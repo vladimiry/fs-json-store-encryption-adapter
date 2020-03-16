@@ -6,19 +6,31 @@ import {promisify} from "util";
 import {randomBytes} from "crypto";
 
 import {Encryption, EncryptionAdapter, KeyDerivation, PasswordBasedPreset} from "lib";
-// tslint:disable-next-line:no-import-zones
 import {KEY_BYTES_32} from "lib/private/constants";
 
-export async function forEachPreset(action: (preset: PasswordBasedPreset, iterationIndex: number) => Promise<void>) {
-    const keyDerivationBundles = KeyDerivation.implementations as any;
-    const encryptionBundles = Encryption.implementations as any;
+export function resolveSkippedPresets(scanValue: string): string[] {
+    return String(process.env.TEST_SKIP_PRESETS)
+        .split(",")
+        .map((envPreset) => envPreset.trim())
+        .filter((envPreset) => String(scanValue).toLowerCase().indexOf(envPreset) !== -1);
+}
+
+function safeFsCharacters(str: string): string {
+    return str.replace(/[^A-Za-z0-9-]/g, "_");
+}
+
+export async function forEachPreset(
+    action: (preset: PasswordBasedPreset, iterationIndex: number) => Promise<void>,
+): Promise<number> {
+    const keyDerivationBundles = KeyDerivation.implementations as any; // eslint-disable-line @typescript-eslint/no-explicit-any
+    const encryptionBundles = Encryption.implementations as any; // eslint-disable-line @typescript-eslint/no-explicit-any
     let iterationIndex = 0;
 
     Object.keys(keyDerivationBundles).forEach((keyDerivationType) => {
         Object.keys(keyDerivationBundles[keyDerivationType].optionsPresets).forEach((keyDerivationPreset) => {
             Object.keys(encryptionBundles).forEach((encryptionType) => {
                 Object.keys(encryptionBundles[encryptionType].optionsPresets).forEach(async (encryptionPreset) => {
-                    const preset: any = {
+                    const preset: any = { // eslint-disable-line @typescript-eslint/no-explicit-any
                         keyDerivation: {type: keyDerivationType, preset: keyDerivationPreset},
                         encryption: {type: encryptionType, preset: encryptionPreset},
                     };
@@ -28,7 +40,7 @@ export async function forEachPreset(action: (preset: PasswordBasedPreset, iterat
                     iterationIndex++;
 
                     if (skippingPresets.length) {
-                        // tslint:disable-next-line:no-console
+                        // eslint-disable-next-line no-console
                         console.log(`skipping "${JSON.stringify(skippingPresets)}" presets processing: ${stringifyedPasswordBasedPreset}`);
                         return;
                     }
@@ -42,23 +54,15 @@ export async function forEachPreset(action: (preset: PasswordBasedPreset, iterat
     return iterationIndex;
 }
 
-export function resolveSkippedPresets(scanValue: string): string[] {
-    return String(process.env.TEST_SKIP_PRESETS)
-        .split(",")
-        .map((envPreset) => envPreset.trim())
-        .filter((envPreset) => String(scanValue).toLowerCase().indexOf(envPreset) !== -1);
-}
-
 export const ENCRYPTED_PRESETS_DUMPS = Object.freeze({
     dataBuffer: Buffer.from("super secret data 123"),
     dumpsOutputDirectory: path.resolve(process.cwd(), "./src/test/fixtures/encrypted-presets-dumps"),
 });
 
 if (process.env.GENERATE_ENCRYPTED_PRESETS_DUMPS) {
-    // tslint:disable-next-line:no-floating-promises
-    (async () => {
+    (async () => { // eslint-disable-line @typescript-eslint/explicit-function-return-type, @typescript-eslint/no-floating-promises
         const {dumpsOutputDirectory, dataBuffer} = ENCRYPTED_PRESETS_DUMPS;
-        const packageJSON = require(path.join(process.cwd(), "package.json"));
+        const packageJSON = require(path.join(process.cwd(), "package.json")); // eslint-disable-line @typescript-eslint/no-var-requires
         const versionDirectory = safeFsCharacters(packageJSON.version);
         const outputDirectory = path.resolve(dumpsOutputDirectory, versionDirectory);
         mkdirp.sync(outputDirectory);
@@ -78,7 +82,7 @@ if (process.env.GENERATE_ENCRYPTED_PRESETS_DUMPS) {
                     preset.encryption.preset,
                 ].join("--")) + ".bin",
             );
-            // tslint:disable-next-line:no-console
+            // eslint-disable-next-line no-console
             console.log(`writing ${passwordBasedFile}`);
             await promisify(fs.writeFile)(passwordBasedFile, await new EncryptionAdapter({password, preset}).write(dataBuffer));
 
@@ -89,7 +93,7 @@ if (process.env.GENERATE_ENCRYPTED_PRESETS_DUMPS) {
                     preset.encryption.preset,
                 ].join("--")) + ".key.bin",
             );
-            // tslint:disable-next-line:no-console
+            // eslint-disable-next-line no-console
             console.log(`writing ${keyBasedFile}`);
             await promisify(fs.writeFile)(keyBasedFile, await new EncryptionAdapter({
                 key,
@@ -97,8 +101,4 @@ if (process.env.GENERATE_ENCRYPTED_PRESETS_DUMPS) {
             }).write(dataBuffer));
         });
     })();
-}
-
-function safeFsCharacters(str: string) {
-    return str.replace(/[^A-Za-z0-9\-]/g, "_");
 }

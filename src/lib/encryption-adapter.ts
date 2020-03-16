@@ -5,25 +5,12 @@ import {KeyDerivationOptions, KeyDerivationPresets, resolveKeyDerivation} from "
 const HEADER_END_MARK_BUFFER = Buffer.from([0o0]);
 
 export class EncryptionAdapter {
-    public static default(input: { password: string } | { key: Buffer }) {
-        const preset: PasswordBasedPreset = {
-            keyDerivation: {type: "sodium.crypto_pwhash", preset: "mode:moderate|algorithm:default"},
-            encryption: {type: "sodium.crypto_secretbox_easy", preset: "algorithm:default"},
-        };
-        return new EncryptionAdapter("password" in input
-            ? {password: input.password, preset}
-            : {key: input.key, preset: {encryption: preset.encryption}},
-        );
-    }
-
     private readonly encryptionPreset: EncryptionPresets;
-
     private readonly resolveDecryptionKey: ((header: PasswordBasedFileHeader | KeyBasedFileHeader) => Promise<{ key: Buffer }>);
-
     private readonly resolveEncryptionKeyData: () => Promise<{ key: Buffer; keyDerivation?: KeyDerivationOptions }>;
 
     constructor(
-        input: { password: string, preset: PasswordBasedPreset } | { key: Buffer, preset: KeyBasedPreset },
+        input: { password: string; preset: PasswordBasedPreset } | { key: Buffer; preset: KeyBasedPreset },
         options: { keyDerivationCache: boolean; keyDerivationCacheLimit?: number } = {keyDerivationCache: false},
     ) {
         this.encryptionPreset = input.preset.encryption;
@@ -31,6 +18,7 @@ export class EncryptionAdapter {
         if ("password" in input) {
             const keyDerivationCache = options.keyDerivationCache ? new KeyDerivationCache(options.keyDerivationCacheLimit) : null;
 
+            // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
             this.resolveDecryptionKey = async (header) => {
                 if (!("keyDerivation" in header)) {
                     throw new Error(`Header doesn't contain the "keyDerivation" section`);
@@ -50,6 +38,7 @@ export class EncryptionAdapter {
 
                 return {key};
             };
+            // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
             this.resolveEncryptionKeyData = async () => {
                 const {key, rule: keyDerivation} = await resolveKeyDerivation(input.preset.keyDerivation).deriveKey(input.password);
 
@@ -60,11 +49,25 @@ export class EncryptionAdapter {
                 return {key, keyDerivation};
             };
         } else {
+            // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
             this.resolveDecryptionKey = async () => ({key: input.key});
+            // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
             this.resolveEncryptionKeyData = async () => ({key: input.key});
         }
     }
 
+    public static default(input: { password: string } | { key: Buffer }): EncryptionAdapter {
+        const preset: PasswordBasedPreset = {
+            keyDerivation: {type: "sodium.crypto_pwhash", preset: "mode:moderate|algorithm:default"},
+            encryption: {type: "sodium.crypto_secretbox_easy", preset: "algorithm:default"},
+        };
+        return new EncryptionAdapter("password" in input
+            ? {password: input.password, preset}
+            : {key: input.key, preset: {encryption: preset.encryption}},
+        );
+    }
+
+    // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
     public async read(data: Buffer) {
         const headerBytesSize = data.indexOf(HEADER_END_MARK_BUFFER);
         const headerBuffer = data.slice(0, headerBytesSize);
@@ -73,9 +76,10 @@ export class EncryptionAdapter {
         const {key} = await this.resolveDecryptionKey(header);
         const {encryption} = header;
 
-        return await resolveEncryption(encryption).decrypt(key, cipherBuffer);
+        return resolveEncryption(encryption).decrypt(key, cipherBuffer);
     }
 
+    // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
     public async write(data: Buffer) {
         const keyData = await this.resolveEncryptionKeyData();
         const {cipher, rule: encryption} = await resolveEncryption(this.encryptionPreset).encrypt(keyData.key, data);
@@ -90,15 +94,15 @@ export class EncryptionAdapter {
 }
 
 export interface PasswordBasedPreset {
-    keyDerivation: KeyDerivationPresets;
-    encryption: EncryptionPresets;
+    readonly keyDerivation: KeyDerivationPresets;
+    readonly encryption: EncryptionPresets;
 }
 
 export type KeyBasedPreset = Pick<PasswordBasedPreset, "encryption">;
 
 export interface PasswordBasedFileHeader {
-    keyDerivation: KeyDerivationOptions;
-    encryption: EncryptionOptions;
+    readonly keyDerivation: KeyDerivationOptions;
+    readonly encryption: EncryptionOptions;
 }
 
 export type KeyBasedFileHeader = Pick<PasswordBasedFileHeader, "encryption">;

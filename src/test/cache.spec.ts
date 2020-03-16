@@ -1,20 +1,10 @@
-import test from "ava";
 import randomString from "randomstring";
+import test from "ava";
 
 import {EncryptionAdapter, PasswordBasedPreset} from "lib";
 
 test("keyDerivationCache", async (t) => {
-    const noCacheTime = await calcTime(false);
-    const cacheTime = await calcTime(true);
-    const noCacheLongerTimes = noCacheTime / cacheTime;
-    const value = 3;
-
-    t.true(
-        noCacheLongerTimes > value,
-        `run without cache should take at least ${value} times longer than using cache, ${JSON.stringify({noCacheTime, cacheTime})}`,
-    );
-
-    async function calcTime(keyDerivationCache: boolean) {
+    async function calcTime(keyDerivationCache: boolean): Promise<number> {
         const password = randomString.generate();
         const data = Buffer.from("secret data");
         const preset: PasswordBasedPreset = {
@@ -29,4 +19,14 @@ test("keyDerivationCache", async (t) => {
         await adapter.read(encrypted);
         return Number(new Date()) - start;
     }
+
+    const noCacheTime = await calcTime(false);
+    const cacheTime = await calcTime(true);
+    const noCacheLongerTimes = noCacheTime / cacheTime;
+    const value = 3;
+
+    t.true(
+        noCacheLongerTimes > value,
+        `run without cache should take at least ${value} times longer than using cache, ${JSON.stringify({noCacheTime, cacheTime})}`,
+    );
 });

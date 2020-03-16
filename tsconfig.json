@@ -1,18 +1,13 @@
 {
   // https://www.typescriptlang.org/docs/handbook/tsconfig-json.html
   // https://www.typescriptlang.org/docs/handbook/compiler-options.html
+  "extends": "./tsconfig.checks.json",
   "compilerOptions": {
     "target": "es5",
     "module": "commonjs",
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "esModuleInterop": true,
-    "strict": true,
-    "noFallthroughCasesInSwitch": true,
-    "noImplicitReturns": true,
-    "noUnusedParameters": true,
-    "strictNullChecks": true,
-    "strictPropertyInitialization": true,
     "importHelpers": true,
     "noEmitOnError": true,
     "declaration": true,
@@ -21,10 +16,6 @@
       "es2015"
     ],
     "baseUrl": ".",
-    "outDir": "./lib",
-    "typeRoots": [
-      "./node_modules/@types",
-      "./src/@types"
-    ]
+    "outDir": "./lib"
   }
 }

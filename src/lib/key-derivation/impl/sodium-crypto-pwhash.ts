@@ -1,13 +1,33 @@
-import sodium from "sodium-native";
 import {promisify} from "util";
 import {randomBytes} from "crypto";
 
-import {BASE64_ENCODING} from "../../private/constants";
-import {KeyDerivationModuleImpl} from "../model";
+import sodium from "src/lib/private/sodium-native-loader";
+import {BASE64_ENCODING} from "src/lib/private/constants";
+import {KeyDerivationModuleImpl} from "src/lib/key-derivation/model";
+
+const defaultAlgorithmOptions = {
+    keyBytes: sodium.crypto_generichash_KEYBYTES,
+    saltBytes: sodium.crypto_pwhash_SALTBYTES,
+    algorithm: sodium.crypto_pwhash_ALG_DEFAULT,
+} as const;
 
 export const deriveKey: KeyDerivationModuleImpl<"sodium.crypto_pwhash">["deriveKey"] = async (password, rule) => {
     const {keyBytes, opsLimit, memLimit, algorithm, saltBytes} = rule.options;
-    const data = rule.data || {saltBase64: randomBytes(saltBytes).toString(BASE64_ENCODING)};
+    const data: (typeof rule)["data"] = rule.data
+        ? {
+            saltBase64: Buffer
+                .from(rule.data.saltBase64, BASE64_ENCODING)
+                // "fs-json-store-encryption-adapter < v2" used wrong salt size constant value (24 instead of 16)
+                // there is no issue here since "sodium-native" was trunking it down to 16 internally
+                // and "sodium-native < v3" didn't have a runtime salt size check bunt since v3 such runtime check got internally enabled
+                // so in order to the data encrypted with "fs-json-store-encryption-adapter < v2" gets decrypted we limit/slice
+                // the previously generated and saved salt by "defaultAlgorithmOptions.saltBytes = sodium.crypto_pwhash_SALTBYTES" value
+                .slice(0, defaultAlgorithmOptions.saltBytes)
+                .toString(BASE64_ENCODING)
+        }
+        : {
+            saltBase64: randomBytes(saltBytes).toString(BASE64_ENCODING),
+        };
     const salt = Buffer.from(data.saltBase64, BASE64_ENCODING);
     const key = Buffer.allocUnsafe(keyBytes);
 
@@ -21,12 +41,6 @@ export const deriveKey: KeyDerivationModuleImpl<"sodium.crypto_pwhash">["deriveK
     );
 
     return {key, rule: {...rule, data}};
-};
-
-const defaultAlgorithmOptions = {
-    keyBytes: sodium.crypto_secretbox_KEYBYTES,
-    saltBytes: sodium.crypto_secretbox_NONCEBYTES,
-    algorithm: sodium.crypto_pwhash_ALG_DEFAULT,
 };
 
 export const optionsPresets = {
@@ -45,16 +59,16 @@ export const optionsPresets = {
         opsLimit: Math.max(sodium.crypto_pwhash_OPSLIMIT_SENSITIVE, 4),
         memLimit: Math.max(sodium.crypto_pwhash_MEMLIMIT_SENSITIVE, 1073741824),
     },
-};
+} as const;
 
 export interface Options {
-    keyBytes: number;
-    saltBytes: number;
-    opsLimit: number;
-    memLimit: number;
-    algorithm: number;
+    readonly keyBytes: number;
+    readonly saltBytes: number;
+    readonly opsLimit: number;
+    readonly memLimit: number;
+    readonly algorithm: number;
 }
 
 export interface Data {
-    saltBase64: string;
+    readonly saltBase64: string;
 }
