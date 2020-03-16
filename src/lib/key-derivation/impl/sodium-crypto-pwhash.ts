@@ -11,23 +11,33 @@ const defaultAlgorithmOptions = {
     algorithm: sodium.crypto_pwhash_ALG_DEFAULT,
 } as const;
 
-export const deriveKey: KeyDerivationModuleImpl<"sodium.crypto_pwhash">["deriveKey"] = async (password, rule) => {
-    const {keyBytes, opsLimit, memLimit, algorithm, saltBytes} = rule.options;
-    const data: (typeof rule)["data"] = rule.data
-        ? {
-            saltBase64: Buffer
-                .from(rule.data.saltBase64, BASE64_ENCODING)
-                // "fs-json-store-encryption-adapter < v2" used wrong salt size constant value (24 instead of 16)
-                // there is no issue here since "sodium-native" was trunking it down to 16 internally
-                // and "sodium-native < v3" didn't have a runtime salt size check bunt since v3 such runtime check got internally enabled
-                // so in order to the data encrypted with "fs-json-store-encryption-adapter < v2" gets decrypted we limit/slice
-                // the previously generated and saved salt by "defaultAlgorithmOptions.saltBytes = sodium.crypto_pwhash_SALTBYTES" value
-                .slice(0, defaultAlgorithmOptions.saltBytes)
-                .toString(BASE64_ENCODING)
-        }
-        : {
+function resolveRuleData(
+    rule: Parameters<KeyDerivationModuleImpl<"sodium.crypto_pwhash">["deriveKey"]>[1],
+): Exclude<(typeof rule)["data"], undefined> {
+    const {saltBytes} = rule.options;
+
+    if (!rule.data) {
+        return {
             saltBase64: randomBytes(saltBytes).toString(BASE64_ENCODING),
         };
+    }
+
+    return {
+        saltBase64: Buffer
+            .from(rule.data.saltBase64, BASE64_ENCODING)
+            // "fs-json-store-encryption-adapter < v2" used wrong salt size constant value (24 instead of 16)
+            // there is no issue here since "sodium-native" was trunking it down to 16 internally
+            // and "sodium-native < v3" didn't have a runtime salt size check bunt since v3 such runtime check got internally enabled
+            // so in order to the data encrypted with "fs-json-store-encryption-adapter < v2" gets decrypted we limit/slice
+            // the previously generated and saved salt by "defaultAlgorithmOptions.saltBytes = sodium.crypto_pwhash_SALTBYTES" value
+            .slice(0, defaultAlgorithmOptions.saltBytes)
+            .toString(BASE64_ENCODING)
+    };
+}
+
+export const deriveKey: KeyDerivationModuleImpl<"sodium.crypto_pwhash">["deriveKey"] = async (password, rule) => {
+    const {keyBytes, opsLimit, memLimit, algorithm} = rule.options;
+    const data = resolveRuleData(rule);
     const salt = Buffer.from(data.saltBase64, BASE64_ENCODING);
     const key = Buffer.allocUnsafe(keyBytes);
 
