@@ -5,8 +5,8 @@ import randomString from "randomstring";
 import {promisify} from "util";
 import {randomBytes} from "crypto";
 
-import {Encryption, EncryptionAdapter, KeyDerivation, PasswordBasedPreset} from "lib";
-import {KEY_BYTES_32} from "lib/private/constants";
+import {Encryption, EncryptionAdapter, KeyDerivation, PasswordBasedPreset} from "../../lib";
+import {KEY_BYTES_32} from "../../lib/private/constants";
 
 export function resolveSkippedPresets(scanValue: string): string[] {
     return String(process.env.TEST_SKIP_PRESETS)

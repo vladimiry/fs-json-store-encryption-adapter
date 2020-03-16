@@ -1,7 +1,7 @@
 import randomString from "randomstring";
 import test from "ava";
 
-import {EncryptionAdapter, PasswordBasedPreset} from "lib";
+import {EncryptionAdapter, PasswordBasedPreset} from "../../lib";
 
 test("keyDerivationCache", async (t) => {
     async function calcTime(keyDerivationCache: boolean): Promise<number> {

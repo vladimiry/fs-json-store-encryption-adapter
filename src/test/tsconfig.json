@@ -1,6 +1,10 @@
 {
-  "extends": "./../../tsconfig.json",
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../../output/__test__"
+  },
   "files": [
-    "./**/*.spec.ts"
+    "./cache.spec.ts",
+    "./index.spec.ts"
   ]
 }

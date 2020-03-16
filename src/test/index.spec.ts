@@ -5,8 +5,8 @@ import test from "ava";
 import {randomBytes} from "crypto";
 
 import {ENCRYPTED_PRESETS_DUMPS, forEachPreset, resolveSkippedPresets} from "./util";
-import {Encryption, EncryptionAdapter, Errors, KeyDerivation, PasswordBasedPreset} from "lib";
-import {KEY_BYTES_32} from "lib/private/constants";
+import {Encryption, EncryptionAdapter, Errors, KeyDerivation, PasswordBasedPreset} from "../../lib";
+import {KEY_BYTES_32} from "../../lib/private/constants";
 
 test("core", async (t) => {
     const preset: { keyDerivation: KeyDerivation.KeyDerivationPresets; encryption: Encryption.EncryptionPresets } = {

@@ -1,6 +1,6 @@
 {
   "name": "fs-json-store-encryption-adapter",
-  "version": "2.0.0-beta.2",
+  "version": "2.0.0-beta.4",
   "description": "Encryption adapter for the \"fs-json-store\" module",
   "author": "Vladimir Yakovlev <dev.vladimir.y@gmail.com> (https://github.com/vladimiry)",
   "license": "MIT",
@@ -23,14 +23,14 @@
     "node": ">=10 <11 || >=12"
   },
   "scripts": {
-    "lib:compile": "tsc -p ./src/lib/tsconfig.json --listEmittedFiles",
-    "lib:compile:watch": "tsc -p ./src/lib/tsconfig.json -w",
+    "lib:compile": "ttsc --project ./src/lib/tsconfig.json --listEmittedFiles",
+    "lib:compile:watch": "ttsc --project ./src/lib/tsconfig.json -w",
     "lib:clean": "rimraf ./lib",
     "lib": "npm-run-all lib:clean lib:compile lint test",
     "lint:ts:base": "eslint",
     "lint": "yarn lint:ts:base \"./src/**/*.ts\"",
     "test": "cross-env TS_NODE_PROJECT=./src/test/tsconfig.json ava \"./src/test/**/*.spec.ts\"",
-    "test:generate_encrypted_presets_dumps": "cross-env TS_NODE_PROJECT=./src/test/tsconfig.json GENERATE_ENCRYPTED_PRESETS_DUMPS=true ts-node -r tsconfig-paths/register ./src/test/util.ts"
+    "test:compiled:generate_encrypted_presets_dumps": "cross-env GENERATE_ENCRYPTED_PRESETS_DUMPS=true src/test/util.ts"
   },
   "ava": {
     "extensions": [
@@ -40,8 +40,7 @@
       "./src/test/**/*.{spec,test}.ts"
     ],
     "require": [
-      "ts-node/register",
-      "tsconfig-paths/register"
+      "ts-node/register"
     ],
     "timeout": "120s",
     "verbose": true
@@ -74,7 +73,8 @@
     "randomstring": "^1.1.5",
     "rimraf": "^3.0.2",
     "ts-node": "^8.6.2",
-    "tsconfig-paths": "^3.9.0",
-    "typescript": "^3.8.3"
+    "ttypescript": "^1.5.10",
+    "typescript": "^3.8.3",
+    "typescript-transform-paths": "^1.1.14"
   }
 }
