@@ -2,8 +2,6 @@ import sodium from "sodium-native"; // eslint-disable-line no-restricted-imports
 
 import {assertEqual} from "./util";
 
-/* eslint-disable @typescript-eslint/camelcase */
-
 export const crypto_pwhash_SALTBYTES: number = (sodium as unknown as { crypto_pwhash_SALTBYTES: number }).crypto_pwhash_SALTBYTES;
 
 assertEqual(crypto_pwhash_SALTBYTES, 16, `Unexpected "crypto_pwhash_SALTBYTES" value`);

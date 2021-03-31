@@ -72,6 +72,7 @@ test("core", async (t) => {
     const set = new Set();
 
     await forEachPreset(
+        // eslint-disable-next-line @typescript-eslint/require-await
         async (preset: PasswordBasedPreset) => {
             const adapterBuilders = [
                 {
@@ -109,7 +110,7 @@ test("core", async (t) => {
 })();
 
 // regression decrypting
-(async () => { // eslint-disable-line @typescript-eslint/explicit-function-return-type, @typescript-eslint/no-floating-promises
+(() => { // eslint-disable-line @typescript-eslint/explicit-function-return-type, @typescript-eslint/no-floating-promises
     const {dumpsOutputDirectory, dataBuffer} = ENCRYPTED_PRESETS_DUMPS;
 
     if (!fs.existsSync(dumpsOutputDirectory)) {

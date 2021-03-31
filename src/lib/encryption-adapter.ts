@@ -50,9 +50,9 @@ export class EncryptionAdapter {
             };
         } else {
             // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-            this.resolveDecryptionKey = async () => ({key: input.key});
+            this.resolveDecryptionKey = async () => Promise.resolve({key: input.key});
             // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-            this.resolveEncryptionKeyData = async () => ({key: input.key});
+            this.resolveEncryptionKeyData = async () => Promise.resolve({key: input.key});
         }
     }
 
@@ -67,8 +67,7 @@ export class EncryptionAdapter {
         );
     }
 
-    // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-    public async read(data: Buffer) {
+    public async read(data: Buffer): Promise<Buffer> {
         const headerBytesSize = data.indexOf(HEADER_END_MARK_BUFFER);
         const headerBuffer = data.slice(0, headerBytesSize);
         const cipherBuffer = data.slice(headerBytesSize + 1);
@@ -79,8 +78,7 @@ export class EncryptionAdapter {
         return resolveEncryption(encryption).decrypt(key, cipherBuffer);
     }
 
-    // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-    public async write(data: Buffer) {
+    public async write(data: Buffer): Promise<Buffer> {
         const keyData = await this.resolveEncryptionKeyData();
         const {cipher, rule: encryption} = await resolveEncryption(this.encryptionPreset).encrypt(keyData.key, data);
         const header: PasswordBasedFileHeader | KeyBasedFileHeader = {keyDerivation: keyData.keyDerivation, encryption};

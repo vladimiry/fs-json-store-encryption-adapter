@@ -26,10 +26,10 @@ export async function forEachPreset(
     const encryptionBundles = Encryption.implementations as any; // eslint-disable-line @typescript-eslint/no-explicit-any
     let iterationIndex = 0;
 
-    Object.keys(keyDerivationBundles).forEach((keyDerivationType) => {
-        Object.keys(keyDerivationBundles[keyDerivationType].optionsPresets).forEach((keyDerivationPreset) => {
-            Object.keys(encryptionBundles).forEach((encryptionType) => {
-                Object.keys(encryptionBundles[encryptionType].optionsPresets).forEach(async (encryptionPreset) => {
+    for (const keyDerivationType of Object.keys(keyDerivationBundles)) {
+        for (const keyDerivationPreset of Object.keys(keyDerivationBundles[keyDerivationType].optionsPresets)) {
+            for (const encryptionType of Object.keys(encryptionBundles)) {
+                for (const encryptionPreset of Object.keys(encryptionBundles[encryptionType].optionsPresets)) {
                     const preset: any = { // eslint-disable-line @typescript-eslint/no-explicit-any
                         keyDerivation: {type: keyDerivationType, preset: keyDerivationPreset},
                         encryption: {type: encryptionType, preset: encryptionPreset},
@@ -42,14 +42,14 @@ export async function forEachPreset(
                     if (skippingPresets.length) {
                         // eslint-disable-next-line no-console
                         console.log(`skipping "${JSON.stringify(skippingPresets)}" presets processing: ${stringifyedPasswordBasedPreset}`);
-                        return;
+                        continue;
                     }
 
                     await action(preset, iterationIndex);
-                });
-            });
-        });
-    });
+                }
+            }
+        }
+    }
 
     return iterationIndex;
 }

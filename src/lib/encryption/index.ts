@@ -19,7 +19,7 @@ export const implementations: Readonly<Record<Type, Model.EncryptionModuleImpl>>
     "sodium.crypto_secretbox_easy": sodiumCryptoSecretboxEasyImpl,
 };
 
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const resolveEncryption = (resolveInput: EncryptionPresets | EncryptionOptions) => {
     const implementation = implementations[resolveInput.type];
 

@@ -10,7 +10,7 @@ export const encrypt: EncryptionModuleImpl<"crypto">["encrypt"] = async (key, in
     const cipherIv = createCipheriv(algorithm, key, iv);
     const cipher = Buffer.concat([cipherIv.update(inputData), cipherIv.final()]);
 
-    return {cipher, rule: {...rule, data}};
+    return Promise.resolve({cipher, rule: {...rule, data}});
 };
 
 export const decrypt: EncryptionModuleImpl<"crypto">["decrypt"] = async (key, inputData, rule) => {
@@ -18,7 +18,7 @@ export const decrypt: EncryptionModuleImpl<"crypto">["decrypt"] = async (key, in
     const iv = Buffer.from(rule.data.ivBase64, BASE64_ENCODING);
     const decipherIv = createDecipheriv(algorithm, key, iv);
 
-    return Buffer.concat([decipherIv.update(inputData), decipherIv.final()]);
+    return Promise.resolve(Buffer.concat([decipherIv.update(inputData), decipherIv.final()]));
 };
 
 export const optionsPresets = {

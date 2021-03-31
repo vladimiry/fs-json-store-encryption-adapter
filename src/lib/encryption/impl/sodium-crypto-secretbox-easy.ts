@@ -13,7 +13,7 @@ export const encrypt: EncryptionModuleImpl<"sodium.crypto_secretbox_easy">["encr
 
     sodium.crypto_secretbox_easy(cipher, inputData, nonce, key);
 
-    return {cipher, rule: {...rule, data}};
+    return Promise.resolve({cipher, rule: {...rule, data}});
 };
 
 export const decrypt: EncryptionModuleImpl<"sodium.crypto_secretbox_easy">["decrypt"] = async (key, inputData, rule) => {
@@ -24,7 +24,7 @@ export const decrypt: EncryptionModuleImpl<"sodium.crypto_secretbox_easy">["decr
         throw new DecryptionError(`"sodium.crypto_secretbox_open_easy" decryption has failed`);
     }
 
-    return decipher;
+    return Promise.resolve(decipher);
 };
 
 export const optionsPresets = {

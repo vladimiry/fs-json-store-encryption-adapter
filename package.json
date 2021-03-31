@@ -1,6 +1,6 @@
 {
   "name": "fs-json-store-encryption-adapter",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Encryption adapter for the \"fs-json-store\" module",
   "author": "Vladimir Yakovlev <dev.vladimir.y@gmail.com> (https://github.com/vladimiry)",
   "license": "MIT",
@@ -23,8 +23,10 @@
     "node": ">=10 <11 || >=12"
   },
   "scripts": {
-    "lib:compile": "ttsc --project ./src/lib/tsconfig.json --listEmittedFiles",
-    "lib:compile:watch": "ttsc --project ./src/lib/tsconfig.json -w",
+    "postinstall": "ts-patch install --persist",
+    "prepare": "husky install",
+    "lib:compile": "tsc --project ./src/lib/tsconfig.json --listEmittedFiles",
+    "lib:compile:watch": "tsc --project ./src/lib/tsconfig.json -w",
     "lib:clean": "rimraf ./lib",
     "lib": "npm-run-all lib:clean lib:compile lint test",
     "lint:ts:base": "eslint",
@@ -48,33 +50,38 @@
   "dependencies": {
     "@hscmap/cache-map": "^1.2.0",
     "make-error-cause": "^2.3.0",
-    "sodium-native": "^3.0.1",
-    "tslib": "^1.11.1"
+    "sodium-native": "^3.2.1",
+    "tslib": "^2.1.0"
   },
   "devDependencies": {
-    "@types/mkdirp": "^1.0.0",
-    "@types/node": "^13.11.1",
+    "@types/mkdirp": "^1.0.1",
+    "@types/node": "^14.14.37",
     "@types/randomstring": "^1.1.6",
     "@types/sodium-native": "^2.3.5",
-    "@typescript-eslint/eslint-plugin": "^2.28.0",
-    "@typescript-eslint/parser": "^2.28.0",
+    "@typescript-eslint/eslint-plugin": "^4.20.0",
+    "@typescript-eslint/parser": "^4.20.0",
     "@vladimiry/import-sort-style": "^0.1.1",
-    "ava": "^3.7.0",
-    "cross-env": "^7.0.2",
-    "eslint": "^6.8.0",
-    "eslint-import-resolver-typescript": "^2.0.0",
-    "eslint-plugin-import": "^2.20.2",
-    "husky": "^4.2.5",
+    "@zerollup/ts-transform-paths": "^1.7.18",
+    "ava": "^3.15.0",
+    "cross-env": "^7.0.3",
+    "eslint": "^7.23.0",
+    "eslint-import-resolver-typescript": "^2.4.0",
+    "eslint-plugin-import": "^2.22.1",
+    "husky": "^6.0.0",
     "import-sort-cli": "^6.0.0",
     "import-sort-parser-typescript": "^6.0.0",
-    "lint-staged": "^10.1.4",
+    "lint-staged": "^10.5.4",
     "mkdirp": "^1.0.4",
     "npm-run-all": "^4.1.5",
     "randomstring": "^1.1.5",
     "rimraf": "^3.0.2",
-    "ts-node": "^8.8.2",
-    "ttypescript": "^1.5.10",
-    "typescript": "^3.8.3",
-    "typescript-transform-paths": "^1.1.14"
+    "ts-node": "^9.1.1",
+    "ts-patch": "^1.3.2",
+    "typescript": "^4.2.3"
+  },
+  "resolutions": {
+    "*/**/tslib": "^2.x",
+    "import-sort-cli/yargs": "^16.x",
+    "import-sort-parser-typescript/typescript": "^4.x"
   }
 }

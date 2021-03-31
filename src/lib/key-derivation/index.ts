@@ -18,7 +18,7 @@ export const implementations: Readonly<Record<Type, Model.KeyDerivationModuleImp
     "sodium.crypto_pwhash": sodiumCryptoPwhashImpl,
 };
 
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const resolveKeyDerivation = (opts: KeyDerivationPresets | KeyDerivationOptions) => {
     const implementation: Model.KeyDerivationModuleImpl<typeof opts.type> = implementations[opts.type];
 
