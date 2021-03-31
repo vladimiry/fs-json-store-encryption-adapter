@@ -1,6 +1,6 @@
 {
   "name": "fs-json-store-encryption-adapter",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Encryption adapter for the \"fs-json-store\" module",
   "author": "Vladimir Yakovlev <dev.vladimir.y@gmail.com> (https://github.com/vladimiry)",
   "license": "MIT",
@@ -23,16 +23,17 @@
     "node": ">=10 <11 || >=12"
   },
   "scripts": {
-    "postinstall": "ts-patch install --persist",
     "prepare": "husky install",
     "lib:compile": "tsc --project ./src/lib/tsconfig.json --listEmittedFiles",
     "lib:compile:watch": "tsc --project ./src/lib/tsconfig.json -w",
     "lib:clean": "rimraf ./lib",
-    "lib": "npm-run-all lib:clean lib:compile lint test",
+    "lib": "npm-run-all ts-patch lib:clean lib:compile lint test",
     "lint:ts:base": "eslint",
     "lint": "yarn lint:ts:base \"./src/**/*.ts\"",
-    "test": "cross-env TS_NODE_PROJECT=./src/test/tsconfig.json ava \"./src/test/**/*.spec.ts\"",
-    "test:compiled:generate_encrypted_presets_dumps": "cross-env GENERATE_ENCRYPTED_PRESETS_DUMPS=true src/test/util.ts"
+    "test": "npm-run-all ts-patch test:ava",
+    "test:ava": "cross-env TS_NODE_PROJECT=./src/test/tsconfig.json ava \"./src/test/**/*.spec.ts\"",
+    "test:compiled:generate_encrypted_presets_dumps": "cross-env GENERATE_ENCRYPTED_PRESETS_DUMPS=true src/test/util.ts",
+    "ts-patch": "ts-patch install --persist"
   },
   "ava": {
     "extensions": [
