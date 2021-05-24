@@ -26,6 +26,10 @@ export const optionsPresets = {
         ivBytes: SALT_BYTES_16,
         algorithm: "aes-256-cbc",
     },
+    "algorithm:aes-256-cbc-hmac-sha256": {
+        ivBytes: SALT_BYTES_16,
+        algorithm: "aes-256-cbc-hmac-sha256",
+    },
 } as const;
 
 export interface Options {

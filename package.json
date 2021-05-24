@@ -1,6 +1,6 @@
 {
   "name": "fs-json-store-encryption-adapter",
-  "version": "2.0.4",
+  "version": "2.1.0",
   "description": "Encryption adapter for the \"fs-json-store\" module",
   "author": "Vladimir Yakovlev <dev.vladimir.y@gmail.com> (https://github.com/vladimiry)",
   "license": "MIT",
@@ -32,7 +32,7 @@
     "lint": "yarn lint:ts:base \"./src/**/*.ts\"",
     "test": "npm-run-all ts-patch test:ava",
     "test:ava": "cross-env TS_NODE_PROJECT=./src/test/tsconfig.json ava \"./src/test/**/*.spec.ts\"",
-    "test:compiled:generate_encrypted_presets_dumps": "cross-env GENERATE_ENCRYPTED_PRESETS_DUMPS=true src/test/util.ts",
+    "test:compiled:generate_encrypted_presets_dumps": "cross-env GENERATE_ENCRYPTED_PRESETS_DUMPS=true ts-node ./src/test/util.ts",
     "ts-patch": "ts-patch install --persist"
   },
   "ava": {
