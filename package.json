@@ -1,6 +1,6 @@
 {
   "name": "fs-json-store-encryption-adapter",
-  "version": "3.0.3",
+  "version": "3.0.4",
   "description": "Encryption adapter for the \"fs-json-store\" module",
   "author": "Vladimir Yakovlev <dev.vladimir.y@gmail.com> (https://github.com/vladimiry)",
   "license": "MIT",
@@ -82,7 +82,8 @@
   },
   "resolutions": {
     "*/**/tslib": "^2.x",
-    "import-sort-cli/yargs": "^16.x",
-    "import-sort-parser-typescript/typescript": "^4.x"
+    "*/**/typescript": "^4.x",
+    "import-sort-cli/yargs": "^17.x",
+    "import-sort-cli/globby": "^11.x"
   }
 }
