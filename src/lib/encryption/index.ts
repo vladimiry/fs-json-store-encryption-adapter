@@ -36,7 +36,7 @@ export const resolveEncryption = (resolveInput: EncryptionPresets | EncryptionOp
             try {
                 return await implementation.encrypt(key, data, {type, options});
             } catch (error) {
-                throw new EncryptionError(`Encryption failed (${JSON.stringify({type, preset})})`, error);
+                throw new EncryptionError(`Encryption failed (${JSON.stringify({type, preset})})`, error as Error);
             }
         },
         // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
@@ -46,7 +46,7 @@ export const resolveEncryption = (resolveInput: EncryptionPresets | EncryptionOp
             try {
                 return await implementation.decrypt(key, data, rule);
             } catch (error) {
-                throw new DecryptionError(`Decryption failed (${JSON.stringify(rule)})`, error);
+                throw new DecryptionError(`Decryption failed (${JSON.stringify(rule)})`, error as Error);
             }
         },
     };
