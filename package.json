@@ -20,7 +20,7 @@
   ],
   "main": "./lib/index.js",
   "engines": {
-    "node": ">=12"
+    "node": "^12 || ^14 || >=16"
   },
   "scripts": {
     "prepare": "npm-run-all prepare:husky prepare:ts-patch prepare:ts-patch:check",
