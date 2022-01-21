@@ -1,9 +1,9 @@
 import {promisify} from "util";
 import {randomBytes} from "crypto";
 
-import sodium from "src/lib/private/sodium-native-loader";
 import {BASE64_ENCODING} from "src/lib/private/constants";
 import {KeyDerivationModuleImpl} from "src/lib/key-derivation/model";
+import sodium from "src/lib/private/sodium-native-loader";
 
 const defaultAlgorithmOptions = {
     keyBytes: sodium.crypto_generichash_KEYBYTES,

@@ -1,8 +1,8 @@
-import * as Model from "./model";
-import * as cryptoImpl from "./impl/crypto";
-import * as sodiumCryptoSecretboxEasyImpl from "./impl/sodium-crypto-secretbox-easy";
-import {DecryptionError, EncryptionError} from "src/lib/errors";
 import {assert} from "src/lib/private/util";
+import * as cryptoImpl from "./impl/crypto";
+import {DecryptionError, EncryptionError} from "src/lib/errors";
+import * as Model from "./model";
+import * as sodiumCryptoSecretboxEasyImpl from "./impl/sodium-crypto-secretbox-easy";
 
 export type Type = "crypto" | "sodium.crypto_secretbox_easy";
 

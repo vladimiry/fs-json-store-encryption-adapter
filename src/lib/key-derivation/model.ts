@@ -1,4 +1,4 @@
-import {KeyDerivationOptions} from ".";
+import {KeyDerivationOptions} from "./";
 import {PartialByKeys} from "src/lib/private/constants";
 
 export interface KeyDerivationModuleImpl<T extends KeyDerivationOptions["type"] = KeyDerivationOptions["type"]> {

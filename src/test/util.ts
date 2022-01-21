@@ -1,9 +1,9 @@
 import fs from "fs";
 import mkdirp from "mkdirp";
 import path from "path";
-import randomString from "randomstring";
 import {promisify} from "util";
 import {randomBytes} from "crypto";
+import randomString from "randomstring";
 
 import {Encryption, EncryptionAdapter, KeyDerivation, PasswordBasedPreset} from "../../lib";
 import {KEY_BYTES_32} from "../../lib/private/constants";

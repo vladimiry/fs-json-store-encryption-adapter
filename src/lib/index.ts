@@ -4,8 +4,4 @@ import * as KeyDerivation from "./key-derivation";
 
 export * from "./encryption-adapter";
 
-export {
-    KeyDerivation,
-    Encryption,
-    Errors,
-};
+export {Encryption, Errors, KeyDerivation};

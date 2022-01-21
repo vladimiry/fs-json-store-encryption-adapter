@@ -1,4 +1,4 @@
-import {EncryptionOptions} from ".";
+import {EncryptionOptions} from "./";
 import {Omit} from "src/lib/private/constants";
 
 export interface EncryptionModuleImpl<T extends EncryptionOptions["type"] = EncryptionOptions["type"]> {

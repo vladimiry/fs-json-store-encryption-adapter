@@ -65,16 +65,14 @@
     "@types/sodium-native": "^2.3.5",
     "@typescript-eslint/eslint-plugin": "^5.10.0",
     "@typescript-eslint/parser": "^5.10.0",
-    "@vladimiry/import-sort-style": "^0.1.4",
     "@zerollup/ts-transform-paths": "^1.7.18",
     "ava": "^4.0.1",
     "cross-env": "^7.0.3",
     "eslint": "^8.7.0",
     "eslint-import-resolver-typescript": "^2.5.0",
     "eslint-plugin-import": "^2.25.4",
+    "format-imports": "^2.4.5",
     "husky": "^7.0.4",
-    "import-sort-cli": "^6.0.0",
-    "import-sort-parser-typescript": "^6.0.0",
     "lint-staged": "^12.2.2",
     "mkdirp": "^1.0.4",
     "npm-run-all2": "^5.0.2",
@@ -87,8 +85,6 @@
   },
   "resolutions": {
     "*/**/tslib": "^2.x",
-    "*/**/typescript": "4.4.x",
-    "import-sort-cli/yargs": "^17.x",
-    "import-sort-cli/globby": "^11.x"
+    "*/**/typescript": "4.4.x"
   }
 }

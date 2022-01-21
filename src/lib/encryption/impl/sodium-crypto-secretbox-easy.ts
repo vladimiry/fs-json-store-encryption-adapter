@@ -1,9 +1,9 @@
 import {randomBytes} from "crypto";
 
-import sodium from "src/lib/private/sodium-native-loader";
 import {BASE64_ENCODING} from "src/lib/private/constants";
 import {DecryptionError} from "src/lib/errors";
 import {EncryptionModuleImpl} from "src/lib/encryption/model";
+import sodium from "src/lib/private/sodium-native-loader";
 
 export const encrypt: EncryptionModuleImpl<"sodium.crypto_secretbox_easy">["encrypt"] = async (key, inputData, rule) => {
     const {nonceBytes} = rule.options;

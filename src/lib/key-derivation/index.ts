@@ -1,7 +1,7 @@
+import {assert} from "src/lib/private/util";
 import * as Model from "./model";
 import * as pbkdfImpl from "./impl/pbkdf2";
 import * as sodiumCryptoPwhashImpl from "./impl/sodium-crypto-pwhash";
-import {assert} from "src/lib/private/util";
 
 export type Type = "pbkdf2" | "sodium.crypto_pwhash";
 

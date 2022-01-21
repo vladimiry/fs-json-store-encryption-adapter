@@ -1,8 +1,8 @@
 import fs from "fs";
 import path from "path";
+import {randomBytes} from "crypto";
 import randomString from "randomstring";
 import test from "ava";
-import {randomBytes} from "crypto";
 
 import {ENCRYPTED_PRESETS_DUMPS, forEachPreset, resolveSkippedPresets} from "./util";
 import {Encryption, EncryptionAdapter, Errors, KeyDerivation, PasswordBasedPreset} from "../../lib";
