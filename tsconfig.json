@@ -16,11 +16,17 @@
       "es2015"
     ],
     "baseUrl": ".",
+    "paths": {
+      "src/*": [
+        "./src/*"
+      ]
+    },    
     "outDir": "./lib",
     "plugins": [
-      {
-        "transform": "@zerollup/ts-transform-paths"
-      }
+      // transform paths in output .js files
+      {"transform": "typescript-transform-paths"},
+      // transform paths in output .d.ts files
+      {"transform": "typescript-transform-paths", "afterDeclarations": true},
     ]
   }
 }
