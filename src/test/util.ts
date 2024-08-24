@@ -1,5 +1,5 @@
 import fs from "fs";
-import mkdirp from "mkdirp";
+import {mkdirp} from "mkdirp";
 import path from "path";
 import {promisify} from "util";
 import {randomBytes} from "crypto";
@@ -7,13 +7,6 @@ import randomString from "randomstring";
 
 import {Encryption, EncryptionAdapter, KeyDerivation, PasswordBasedPreset} from "../../lib";
 import {KEY_BYTES_32} from "../../lib/private/constants";
-
-export function resolveSkippedPresets(scanValue: string): string[] {
-    return String(process.env.TEST_SKIP_PRESETS)
-        .split(",")
-        .map((envPreset) => envPreset.trim())
-        .filter((envPreset) => String(scanValue).toLowerCase().indexOf(envPreset) !== -1);
-}
 
 function safeFsCharacters(str: string): string {
     return str.replace(/[^A-Za-z0-9-]/g, "_");
@@ -34,17 +27,7 @@ export async function forEachPreset(
                         keyDerivation: {type: keyDerivationType, preset: keyDerivationPreset},
                         encryption: {type: encryptionType, preset: encryptionPreset},
                     };
-                    const stringifyedPasswordBasedPreset = JSON.stringify(preset);
-                    const skippingPresets = resolveSkippedPresets(stringifyedPasswordBasedPreset);
-
                     iterationIndex++;
-
-                    if (skippingPresets.length) {
-                        // eslint-disable-next-line no-console
-                        console.log(`skipping "${JSON.stringify(skippingPresets)}" presets processing: ${stringifyedPasswordBasedPreset}`);
-                        continue;
-                    }
-
                     await action(preset, iterationIndex);
                 }
             }
@@ -62,10 +45,12 @@ export const ENCRYPTED_PRESETS_DUMPS = Object.freeze({
 if (process.env.GENERATE_ENCRYPTED_PRESETS_DUMPS) {
     (async () => { // eslint-disable-line @typescript-eslint/explicit-function-return-type, @typescript-eslint/no-floating-promises
         const {dumpsOutputDirectory, dataBuffer} = ENCRYPTED_PRESETS_DUMPS;
-        const packageJSON = require(path.join(process.cwd(), "package.json")); // eslint-disable-line @typescript-eslint/no-var-requires
+        // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports
+        const packageJSON = require(path.join(process.cwd(), "package.json"));
         const versionDirectory = safeFsCharacters(packageJSON.version);
         const outputDirectory = path.resolve(dumpsOutputDirectory, versionDirectory);
-        mkdirp.sync(outputDirectory);
+        
+        await mkdirp(outputDirectory);
 
         const key = randomBytes(KEY_BYTES_32);
         const password = randomString.generate(KEY_BYTES_32);

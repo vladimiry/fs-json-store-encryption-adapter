@@ -37,7 +37,6 @@ export interface Adapter {
   - **`preset`**: `algorithm:default`
 - **`type`**: `crypto`
   - **`preset`**: `algorithm:aes-256-cbc`
-  - **`preset`**: `algorithm:aes-256-cbc-hmac-sha256`
 
 You should not rely on the `types / presets` respective inner values, but only on the `types / presets` names listed above. Presets values can be changed in the code in any time (for example, increasing key derivation work factor), but that won't break the decryption of the previously encrypted data since adapter stores all the encryption options in the same buffer and so decryption can be reproduced even if values of the presets have been changed in the code with new module release.
 

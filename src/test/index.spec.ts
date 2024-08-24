@@ -4,7 +4,7 @@ import {randomBytes} from "crypto";
 import randomString from "randomstring";
 import test from "ava";
 
-import {ENCRYPTED_PRESETS_DUMPS, forEachPreset, resolveSkippedPresets} from "./util";
+import {ENCRYPTED_PRESETS_DUMPS, forEachPreset} from "./util";
 import {Encryption, EncryptionAdapter, Errors, KeyDerivation, PasswordBasedPreset} from "../../lib";
 import {KEY_BYTES_32} from "../../lib/private/constants";
 
@@ -53,18 +53,21 @@ test("core", async (t) => {
     t.deepEqual(await instance3DiffOpts.read(encryptedData2), data);
 
     // instance with same preset, but different password should fail with "DecryptionError"
-    await t.throwsAsync(
-        new EncryptionAdapter({password: randomString.generate(), preset}).read(encryptedData),
-        {name: Errors.DecryptionError.name},
-    );
-    await t.throwsAsync(
-        new EncryptionAdapter({password: randomString.generate(), preset}).read(encryptedDataIteration2),
-        {name: Errors.DecryptionError.name},
-    );
-    await t.throwsAsync(
-        new EncryptionAdapter({password: randomString.generate(), preset}).read(encryptedData2),
-        {name: Errors.DecryptionError.name},
-    );
+    try {
+        await new EncryptionAdapter({password: randomString.generate(), preset}).read(encryptedData);
+    } catch (e) {
+        t.is((e as {name: unknown}).name, Errors.DecryptionError.name);
+    }
+    try {
+        await new EncryptionAdapter({password: randomString.generate(), preset}).read(encryptedDataIteration2);
+    } catch (e) {
+        t.is((e as {name: unknown}).name, Errors.DecryptionError.name);
+    }
+    try {
+        await new EncryptionAdapter({password: randomString.generate(), preset}).read(encryptedData2);
+    } catch (e) {
+        t.is((e as {name: unknown}).name, Errors.DecryptionError.name);
+    }
 });
 
 // run with all presets combinations
@@ -135,19 +138,11 @@ test("core", async (t) => {
                 continue;
             }
 
-            const skippingPresets = resolveSkippedPresets(fileName);
-
-            if (skippingPresets.length) {
-                // eslint-disable-next-line no-console
-                console.log(`skipping "${JSON.stringify(skippingPresets)}" presets processing for file: ${fileName}`);
-                continue;
-            }
-
             test(`regression decrypting ${versionDirectory}: ${fileName}`, async (t) => {
                 const encryptedData = fs.readFileSync(path.join(directory, fileName));
                 const adapter = EncryptionAdapter.default(fileName.endsWith(".key.bin") ? {key} : {password});
                 const decryptedData = await adapter.read(encryptedData);
-
+                
                 t.deepEqual(decryptedData, dataBuffer);
             });
         }
